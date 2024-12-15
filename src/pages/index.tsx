@@ -91,6 +91,25 @@ export default function Home() {
             >
               Clear
             </button>
+
+            {process.env.NEXT_PUBLIC_DEPLOYMENT !== "prod" && (
+              <button
+                className="rounded-xl border border-black px-4 py-1"
+                onClick={() => {
+                  setUrl(
+                    "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-train.zip",
+                  );
+                  setNames(
+                    "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
+                  );
+                  setParams('{"epochs": 1}');
+                  setDatasetType("visdrone");
+                  setModel("yolo");
+                }}
+              >
+                dev inputs
+              </button>
+            )}
           </div>
         </div>
       </main>
