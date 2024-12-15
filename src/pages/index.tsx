@@ -13,6 +13,14 @@ export default function Home() {
     console.log(url, names, params, datasetType, model);
   };
 
+  const resetForm = () => {
+    setUrl("");
+    setNames("");
+    setParams("");
+    setDatasetType("");
+    setModel("");
+  };
+
   return (
     <div className="grid min-h-screen grid-rows-[20px_1fr_20px] gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
       <header className="row-start-1 flex flex-col items-center gap-8 sm:items-start">
@@ -70,12 +78,20 @@ export default function Home() {
             onChange={setParams}
           />
 
-          <button
-            className="rounded-xl border border-black bg-green-500 px-4 py-1 hover:bg-green-600"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              className="rounded-xl border border-black bg-green-500 px-4 py-1 hover:bg-green-600"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+            <button
+              className="rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
+              onClick={resetForm}
+            >
+              Clear
+            </button>
+          </div>
         </div>
       </main>
       <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
