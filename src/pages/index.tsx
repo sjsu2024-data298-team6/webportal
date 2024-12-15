@@ -9,7 +9,7 @@ export default function Home() {
           Obstacle Detection for Drone Flight Path
         </span>
       </header>
-      <main className="row-start-2 flex flex-col items-center gap-8 sm:items-start">
+      <main className="row-start-2 flex w-full flex-col items-center gap-8 sm:items-start 2xl:w-2/3">
         <form className="flex w-full flex-col items-start gap-4">
           <span className="text-xl font-semibold">Dataset details</span>
 
