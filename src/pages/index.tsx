@@ -1,7 +1,18 @@
 import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
+import { useState } from "react";
 
 export default function Home() {
+  const [url, setUrl] = useState("");
+  const [names, setNames] = useState("");
+  const [params, setParams] = useState("");
+  const [datasetType, setDatasetType] = useState("");
+  const [model, setModel] = useState("");
+
+  const handleSubmit = () => {
+    console.log(url, names, params, datasetType, model);
+  };
+
   return (
     <div className="grid min-h-screen grid-rows-[20px_1fr_20px] gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
       <header className="row-start-1 flex flex-col items-center gap-8 sm:items-start">
@@ -10,25 +21,31 @@ export default function Home() {
         </span>
       </header>
       <main className="row-start-2 flex w-full flex-col items-center gap-8 sm:items-start 2xl:w-2/3">
-        <form className="flex w-full flex-col items-start gap-4">
+        <div className="flex w-full flex-col items-start gap-4">
           <span className="text-xl font-semibold">Dataset details</span>
 
           <TextFormEntry
             heading="URL"
             formkey="url"
             placeholder="https://..."
+            value={url}
+            onChange={setUrl}
           />
 
           <DropdownFormEntry
             heading="Type"
             formkey="dataset_type"
             options={[{ name: "VisDrone Direct Zip", value: "visdrone" }]}
+            value={datasetType}
+            onChange={setDatasetType}
           />
 
           <TextFormEntry
             heading="Class Names"
             formkey="names"
             placeholder="Enter the class names, comma separated, no spaces, in the correct order"
+            value={names}
+            onChange={setNames}
           />
 
           <span className="text-xl font-semibold">Model details</span>
@@ -40,6 +57,8 @@ export default function Home() {
               { name: "YOLOv11", value: "yolo" },
               { name: "RT-DETR", value: "rtdetr" },
             ]}
+            value={model}
+            onChange={setModel}
           />
 
           <TextFormEntry
@@ -47,15 +66,17 @@ export default function Home() {
             formkey="params"
             placeholder="{...}"
             type="textarea"
+            value={params}
+            onChange={setParams}
           />
 
           <button
             className="rounded-xl border border-black bg-green-500 px-4 py-1 hover:bg-green-600"
-            type="submit"
+            onClick={handleSubmit}
           >
             Submit
           </button>
-        </form>
+        </div>
       </main>
       <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
         {" < "}

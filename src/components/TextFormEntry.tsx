@@ -3,6 +3,8 @@ interface TextFormEntryProps {
   formkey: string;
   placeholder?: string;
   type?: "text" | "textarea";
+  value: string;
+  onChange: (value: string) => void;
 }
 
 const TextFormEntry: React.FC<TextFormEntryProps> = ({
@@ -10,6 +12,8 @@ const TextFormEntry: React.FC<TextFormEntryProps> = ({
   formkey,
   placeholder,
   type = "text",
+  value,
+  onChange,
 }) => {
   return (
     <span className="flex w-full flex-row items-start gap-8">
@@ -23,6 +27,8 @@ const TextFormEntry: React.FC<TextFormEntryProps> = ({
           name={formkey}
           placeholder={placeholder ?? ""}
           rows={5}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
         ></textarea>
       ) : (
         <input
@@ -31,6 +37,8 @@ const TextFormEntry: React.FC<TextFormEntryProps> = ({
           id={formkey}
           name={formkey}
           placeholder={placeholder ?? ""}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
         ></input>
       )}
     </span>
