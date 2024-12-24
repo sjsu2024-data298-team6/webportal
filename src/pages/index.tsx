@@ -1,6 +1,42 @@
 import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
 import { useState } from "react";
+import { z } from "zod";
+
+const ParamsSchema = z.object({
+  epochs: z.number().min(1, "Epochs must be at least 1"),
+  imgsz: z.number(),
+  batch: z.number(),
+});
+
+const FormSchema = z.object({
+  url: z.string().url("Invalid URL format"),
+  names: z.string().nonempty("Class names cannot be empty"),
+  params: z
+    .string()
+    .refine((val) => {
+      try {
+        JSON.parse(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Invalid JSON format")
+    .refine((val) => {
+      try {
+        const parsed = JSON.parse(val);
+        ParamsSchema.parse(parsed);
+        return true;
+      } catch (e) {
+        if (e instanceof z.ZodError) {
+          throw e;
+        }
+        return false;
+      }
+    }, "Something went wrong during validation"),
+  datasetType: z.string().nonempty("Dataset type is required"),
+  model: z.string().nonempty("Model type is required"),
+});
 
 interface FormData {
   url: string;
@@ -19,34 +55,62 @@ export default function Home() {
     model: "",
   });
 
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
+    {},
+  );
+
   const handleChange = (key: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [key]: value,
     }));
+
+    try {
+      FormSchema.shape[key].parse(value);
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setErrors((prev) => ({ ...prev, [key]: e.errors[0].message }));
+      }
+    }
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?url=${formData.url}&dataset_type=${formData.datasetType}&names=${formData.names}&model=${formData.model}&params=${JSON.stringify(formData.params)}`;
+    try {
+      FormSchema.parse(formData);
+      console.log("Validated form data:", formData);
 
-    console.log(endpoint);
+      const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?url=${formData.url}&dataset_type=${formData.datasetType}&names=${formData.names}&model=${formData.model}&params=${JSON.stringify(formData.params)}`;
 
-    fetch(endpoint, {
-      method: "POST",
-      mode: "cors",
-    })
-      .then((response) => {
-        if (response.status !== 200) {
-          console.error("Error:", response);
-        } else {
-          console.log("Form data submitted:", formData);
-        }
+      console.log(endpoint);
+
+      fetch(endpoint, {
+        method: "POST",
+        mode: "cors",
       })
-      .catch((error) => {
-        console.error("Fetch error:", error);
-      });
+        .then((response) => {
+          if (response.status !== 200) {
+            console.error("Error:", response);
+          } else {
+            console.log("Form data submitted:", formData);
+          }
+        })
+        .catch((error) => {
+          console.error("Fetch error:", error);
+        });
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        const fieldErrors: Partial<Record<keyof FormData, string>> = {};
+        e.errors.forEach((err) => {
+          if (err.path[0] in formData) {
+            fieldErrors[err.path[0] as keyof FormData] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+      }
+    }
   };
 
   const resetForm = () => {
@@ -57,6 +121,7 @@ export default function Home() {
       datasetType: "",
       model: "",
     });
+    setErrors({});
   };
 
   const loadDevInputs = () => {
@@ -64,10 +129,11 @@ export default function Home() {
       url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-train.zip",
       names:
         "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
-      params: '{"epochs": 1}',
+      params: '{"epochs": 1, "imgsz": 640, "batch": 8}',
       datasetType: "visdrone",
       model: "yolo",
     });
+    setErrors({});
   };
 
   return (
@@ -91,6 +157,7 @@ export default function Home() {
             value={formData.url}
             onChange={(value) => handleChange("url", value)}
           />
+          {errors.url && <span className="text-red-500">{errors.url}</span>}
 
           <DropdownFormEntry
             heading="Type"
@@ -99,14 +166,18 @@ export default function Home() {
             value={formData.datasetType}
             onChange={(value) => handleChange("datasetType", value)}
           />
+          {errors.datasetType && (
+            <span className="text-red-500">{errors.datasetType}</span>
+          )}
 
           <TextFormEntry
             heading="Class Names"
             formkey="names"
-            placeholder="Enter the class names, comma separated, no spaces, in the correct order"
+            placeholder="Enter the class names, comma separated, in the correct order"
             value={formData.names}
             onChange={(value) => handleChange("names", value)}
           />
+          {errors.names && <span className="text-red-500">{errors.names}</span>}
 
           <span className="text-xl font-semibold">Model details</span>
 
@@ -120,6 +191,7 @@ export default function Home() {
             value={formData.model}
             onChange={(value) => handleChange("model", value)}
           />
+          {errors.model && <span className="text-red-500">{errors.model}</span>}
 
           <TextFormEntry
             heading="Parameters"
@@ -129,14 +201,27 @@ export default function Home() {
             value={formData.params}
             onChange={(value) => handleChange("params", value)}
           />
+          {errors.params && (
+            <span className="text-red-500">{errors.params}</span>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
-            <button
-              type="submit"
-              className="rounded-xl border border-black bg-green-500 px-4 py-1 hover:bg-green-600"
-            >
-              Submit
-            </button>
+            {Object.values(errors).some((error) => error !== undefined) ? (
+              <button
+                type="submit"
+                className="rounded-xl border border-black bg-gray-300 px-4 py-1 line-through"
+                disabled
+              >
+                Submit
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="rounded-xl border border-black bg-green-500 px-4 py-1 hover:bg-green-600"
+              >
+                Submit
+              </button>
+            )}
             <button
               type="button"
               className="rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
