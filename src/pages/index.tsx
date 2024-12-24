@@ -10,7 +10,30 @@ export default function Home() {
   const [model, setModel] = useState("");
 
   const handleSubmit = () => {
-    console.log(url, names, params, datasetType, model);
+    const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?url=${url}&dataset_type=${datasetType}&names=${names}&model=${model}&params=${JSON.stringify(params)}`;
+    console.log(endpoint);
+
+    fetch(endpoint, {
+      method: "POST",
+      mode: "cors",
+    })
+      .then((response) => {
+        if (response.status !== 200) {
+          console.error("Error:", response);
+        } else {
+          console.log(
+            "Form data submitted:",
+            url,
+            names,
+            params,
+            datasetType,
+            model,
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Fetch error:", error);
+      });
   };
 
   const resetForm = () => {
