@@ -3,15 +3,34 @@ import TextFormEntry from "@/components/TextFormEntry";
 import { useState } from "react";
 import { z } from "zod";
 
-const ParamsSchema = z.object({
-  epochs: z.number().min(1, "Epochs must be at least 1"),
-  imgsz: z.number(),
-  batch: z.number(),
-});
+const ParamsSchema = z
+  .object({
+    epochs: z
+      .number({
+        required_error: "Training epochs are required (epochs)",
+        invalid_type_error: "Training epochs must be a number",
+      })
+      .min(10, "Epochs must be at least 10"),
+    imgsz: z
+      .number({
+        required_error: "Image size is required (imgsz)",
+        invalid_type_error: "Image size must be a number",
+      })
+      .multipleOf(32, "Image size should be a multiple of 32")
+      .optional(),
+    batch: z.number({
+      required_error: "Batch size is required (batch)",
+      invalid_type_error: "Batch size must be a number",
+    }),
+  })
+  .strict();
 
 const FormSchema = z.object({
   url: z.string().url("Invalid URL format"),
-  names: z.string().nonempty("Class names cannot be empty"),
+  names: z
+    .string()
+    .nonempty("Class names cannot be empty")
+    .refine((val) => /,/.test(val), "Classes must be comma separated"),
   params: z
     .string()
     .refine((val) => {
@@ -129,7 +148,7 @@ export default function Home() {
       url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-train.zip",
       names:
         "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
-      params: '{"epochs": 1, "imgsz": 640, "batch": 8}',
+      params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
       datasetType: "visdrone",
       model: "yolo",
     });
