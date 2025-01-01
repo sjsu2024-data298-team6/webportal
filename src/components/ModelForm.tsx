@@ -145,7 +145,7 @@ export default function ModelForm() {
 
   const loadDevInputs = () => {
     setFormData({
-      url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-train.zip",
+      url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-test-dev.zip",
       names:
         "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
