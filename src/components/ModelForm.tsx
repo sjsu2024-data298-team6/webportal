@@ -174,7 +174,10 @@ export default function ModelForm() {
       <DropdownFormEntry
         heading="Type"
         formkey="dataset_type"
-        options={[{ name: "VisDrone Direct Zip", value: "visdrone" }]}
+        options={[
+          { name: "VisDrone Direct Zip", value: "visdrone" },
+          { name: "Roboflow Link", value: "roboflow" },
+        ]}
         value={formData.datasetType}
         onChange={(value) => handleChange("datasetType", value)}
       />
