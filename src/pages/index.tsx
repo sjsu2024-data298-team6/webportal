@@ -3,8 +3,11 @@ import ModelForm from "@/components/ModelForm";
 import { useState } from "react";
 
 export default function Home() {
-  const options = ["model", "dataset"];
-  const [selectedForm, setSelectedForm] = useState(options[0]);
+  const options: { value: string; title: string }[] = [
+    { value: "model", title: "Train Model" },
+    { value: "dataset", title: "Upload dataset" },
+  ];
+  const [selectedForm, setSelectedForm] = useState(options[0].value);
   return (
     <div className="grid min-h-screen grid-rows-[20px_1fr_20px] gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
       <header className="row-start-1 flex flex-col items-center gap-8 sm:items-start">
@@ -23,8 +26,8 @@ export default function Home() {
               Please select an option
             </option>
             {options.map((option) => (
-              <option value={option} key={option}>
-                {option}
+              <option value={option.value} key={option.value}>
+                {option.title}
               </option>
             ))}
           </select>
