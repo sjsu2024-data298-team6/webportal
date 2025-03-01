@@ -4,63 +4,26 @@ import { useState } from "react";
 import { z } from "zod";
 import FormPart from "./FormPart";
 
-const ParamsSchema = z
-  .object({
-    epochs: z
-      .number({
-        required_error: "Training epochs are required (epochs)",
-        invalid_type_error: "Training epochs must be a number",
-      })
-      .min(10, "Epochs must be at least 10"),
-    imgsz: z
-      .number({
-        required_error: "Image size is required (imgsz)",
-        invalid_type_error: "Image size must be a number",
-      })
-      .multipleOf(32, "Image size should be a multiple of 32")
-      .optional(),
-    batch: z.number({
-      required_error: "Batch size is required (batch)",
-      invalid_type_error: "Batch size must be a number",
-    }),
-  })
-  .strict();
-
 const FormSchema = z.object({
-  params: z
+  url: z.string().url("Invalid URL format"),
+  names: z
     .string()
-    .refine((val) => {
-      try {
-        JSON.parse(val);
-        return true;
-      } catch {
-        return false;
-      }
-    }, "Invalid JSON format")
-    .refine((val) => {
-      try {
-        const parsed = JSON.parse(val);
-        ParamsSchema.parse(parsed);
-        return true;
-      } catch (e) {
-        if (e instanceof z.ZodError) {
-          throw e;
-        }
-        return false;
-      }
-    }, "Something went wrong during validation"),
-  model: z.string().nonempty("Model type is required"),
+    .nonempty("Class names cannot be empty")
+    .refine((val) => /,/.test(val), "Classes must be comma separated"),
+  datasetType: z.string().nonempty("Dataset type is required"),
 });
 
 interface FormData {
-  params: string;
-  model: string;
+  url: string;
+  datasetType: string;
+  names: string;
 }
 
-export default function ModelForm() {
+export default function DatasetForm() {
   const [formData, setFormData] = useState<FormData>({
-    params: "",
-    model: "",
+    url: "",
+    datasetType: "",
+    names: "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
@@ -123,16 +86,19 @@ export default function ModelForm() {
 
   const resetForm = () => {
     setFormData({
-      params: "",
-      model: "",
+      url: "",
+      datasetType: "",
+      names: "",
     });
     setErrors({});
   };
 
   const loadDevInputs = () => {
     setFormData({
-      params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
-      model: "yolo",
+      url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-test-dev.zip",
+      names:
+        "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
+      datasetType: "visdrone",
     });
     setErrors({});
   };
@@ -144,29 +110,39 @@ export default function ModelForm() {
       loadDevInputs={loadDevInputs}
       errors={errors}
     >
-      <span className="text-xl font-semibold">Model details</span>
+      <span className="text-xl font-semibold">Dataset details</span>
+
+      <TextFormEntry
+        heading="URL"
+        formkey="url"
+        placeholder="https://..."
+        value={formData.url}
+        onChange={(value) => handleChange("url", value)}
+      />
+      {errors.url && <span className="text-red-500">{errors.url}</span>}
 
       <DropdownFormEntry
         heading="Type"
-        formkey="model"
+        formkey="dataset_type"
         options={[
-          { name: "YOLOv11", value: "yolo" },
-          { name: "RT-DETR", value: "rtdetr" },
+          { name: "VisDrone Direct Zip", value: "visdrone" },
+          { name: "Roboflow Link", value: "roboflow" },
         ]}
-        value={formData.model}
-        onChange={(value) => handleChange("model", value)}
+        value={formData.datasetType}
+        onChange={(value) => handleChange("datasetType", value)}
       />
-      {errors.model && <span className="text-red-500">{errors.model}</span>}
+      {errors.datasetType && (
+        <span className="text-red-500">{errors.datasetType}</span>
+      )}
 
       <TextFormEntry
-        heading="Parameters"
-        formkey="params"
-        placeholder="{...}"
-        type="textarea"
-        value={formData.params}
-        onChange={(value) => handleChange("params", value)}
+        heading="Class Names"
+        formkey="names"
+        placeholder="Enter the class names, comma separated, in the correct order"
+        value={formData.names}
+        onChange={(value) => handleChange("names", value)}
       />
-      {errors.params && <span className="text-red-500">{errors.params}</span>}
+      {errors.names && <span className="text-red-500">{errors.names}</span>}
     </FormPart>
   );
 }
