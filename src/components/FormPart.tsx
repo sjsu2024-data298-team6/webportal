@@ -1,19 +1,19 @@
 import React from "react";
 
-interface FormPartProps {
+interface FormPartProps<T> {
   handleSubmit: (event: React.FormEvent) => void;
-  errors: any;
+  errors: Partial<Record<keyof T, string>>;
   resetForm: () => void;
   loadDevInputs: () => void;
 }
 
-const FormPart: React.FC<React.PropsWithChildren<FormPartProps>> = ({
+const FormPart = <T,>({
   handleSubmit,
   errors,
   resetForm,
   loadDevInputs,
   children,
-}) => {
+}: React.PropsWithChildren<FormPartProps<T>>) => {
   return (
     <form
       className="flex w-full flex-col items-start gap-4"

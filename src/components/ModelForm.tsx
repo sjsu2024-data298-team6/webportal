@@ -138,7 +138,7 @@ export default function ModelForm() {
   };
 
   return (
-    <FormPart
+    <FormPart<FormData>
       handleSubmit={handleSubmit}
       resetForm={resetForm}
       loadDevInputs={loadDevInputs}
