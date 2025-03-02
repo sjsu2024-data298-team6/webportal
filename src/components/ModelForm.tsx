@@ -90,7 +90,7 @@ export default function ModelForm() {
       FormSchema.parse(formData);
       console.log("Validated form data:", formData);
 
-      const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?data=${encodeURI(JSON.stringify(formData))}`;
+      const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?data=${encodeURI(JSON.stringify(formData))}&task=model`;
 
       console.log(endpoint);
 

@@ -53,7 +53,7 @@ export default function DatasetForm() {
       FormSchema.parse(formData);
       console.log("Validated form data:", formData);
 
-      const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?data=${encodeURI(JSON.stringify(formData))}`;
+      const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?data=${encodeURI(JSON.stringify(formData))}&task=dataset`;
 
       console.log(endpoint);
 
