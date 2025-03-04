@@ -1,5 +1,6 @@
 import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
+import FileUploadFormEntry from "@/components/FileUploadFormEntry";
 import { useState } from "react";
 import { z } from "zod";
 import FormPart from "./FormPart";
@@ -55,12 +56,14 @@ const FormSchema = z.object({
 interface FormData {
   params: string;
   model: string;
+  yaml_utkey: string;
 }
 
 export default function ModelForm() {
   const [formData, setFormData] = useState<FormData>({
     params: "",
     model: "",
+    yaml_utkey: "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
@@ -68,10 +71,18 @@ export default function ModelForm() {
   );
 
   const handleChange = (key: keyof FormData, value: string) => {
+    console.log(key, value);
     setFormData((prev) => ({
       ...prev,
       [key]: value,
     }));
+
+    if (value !== "custom_yolo" && key === "model") {
+      setFormData((prev) => ({
+        ...prev,
+        ["yaml_utkey"]: "",
+      }));
+    }
 
     try {
       FormSchema.shape[key].parse(value);
@@ -103,6 +114,7 @@ export default function ModelForm() {
             console.error("Error:", response);
           } else {
             console.log("Form data submitted:", formData);
+            resetForm();
           }
         })
         .catch((error) => {
@@ -125,6 +137,7 @@ export default function ModelForm() {
     setFormData({
       params: "",
       model: "",
+      yaml_utkey: "",
     });
     setErrors({});
   };
@@ -133,6 +146,7 @@ export default function ModelForm() {
     setFormData({
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
       model: "yolo",
+      yaml_utkey: "",
     });
     setErrors({});
   };
@@ -151,6 +165,7 @@ export default function ModelForm() {
         formkey="model"
         options={[
           { name: "YOLOv11", value: "yolo" },
+          { name: "Custom YOLOv8", value: "custom_yolo" },
           { name: "RT-DETR", value: "rtdetr" },
         ]}
         value={formData.model}
@@ -167,6 +182,14 @@ export default function ModelForm() {
         onChange={(value) => handleChange("params", value)}
       />
       {errors.params && <span className="text-red-500">{errors.params}</span>}
+
+      {formData.model === "custom_yolo" && (
+        <FileUploadFormEntry
+          heading="YAML model config file"
+          formkey="yamlfile"
+          onChange={(value) => handleChange("yaml_utkey", value)}
+        />
+      )}
     </FormPart>
   );
 }
