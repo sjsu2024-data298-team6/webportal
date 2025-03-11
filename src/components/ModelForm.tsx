@@ -1,9 +1,10 @@
 import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
 import FileUploadFormEntry from "@/components/FileUploadFormEntry";
+import TagsFormEntry from "@/components/TagsFormEntry";
 import { useState } from "react";
 import { z } from "zod";
-import FormPart from "./FormPart";
+import FormPart from "@/components/FormPart";
 
 const ParamsSchema = z
   .object({
@@ -51,12 +52,14 @@ const FormSchema = z.object({
       }
     }, "Something went wrong during validation"),
   model: z.string().nonempty("Model type is required"),
+  tags: z.string().array(),
 });
 
 interface FormData {
   params: string;
   model: string;
   yaml_utkey: string;
+  tags: string[];
 }
 
 export default function ModelForm() {
@@ -64,7 +67,10 @@ export default function ModelForm() {
     params: "",
     model: "",
     yaml_utkey: "",
+    tags: [""],
   });
+
+  const [tagsReset, setTagsReset] = useState<number>(0);
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
     {},
@@ -81,6 +87,7 @@ export default function ModelForm() {
       setFormData((prev) => ({
         ...prev,
         ["yaml_utkey"]: "",
+        ["tags"]: [""],
       }));
     }
 
@@ -138,8 +145,10 @@ export default function ModelForm() {
       params: "",
       model: "",
       yaml_utkey: "",
+      tags: [""],
     });
     setErrors({});
+    setTagsReset(tagsReset + 1);
   };
 
   const loadDevInputs = () => {
@@ -147,6 +156,7 @@ export default function ModelForm() {
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
       model: "yolo",
       yaml_utkey: "",
+      tags: [""],
     });
     setErrors({});
   };
@@ -182,6 +192,15 @@ export default function ModelForm() {
         onChange={(value) => handleChange("params", value)}
       />
       {errors.params && <span className="text-red-500">{errors.params}</span>}
+
+      <TagsFormEntry
+        placeholder=""
+        heading="Tags"
+        formkey="tags"
+        onTagsChange={(value) => handleChange("tags", value)}
+        reset={tagsReset}
+      />
+      {errors.tags && <span className="text-red-500">{errors.tags}</span>}
 
       {formData.model === "custom_yolo" && (
         <FileUploadFormEntry
