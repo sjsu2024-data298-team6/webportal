@@ -5,6 +5,7 @@ import TagsFormEntry from "@/components/TagsFormEntry";
 import { useState } from "react";
 import { z } from "zod";
 import FormPart from "@/components/FormPart";
+import handleSubmitHelper from "@/utils/formSubmit";
 
 const ParamsSchema = z
   .object({
@@ -105,42 +106,14 @@ export default function ModelForm() {
   };
 
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    try {
-      FormSchema.parse(formData);
-      console.log("Validated form data:", formData);
-
-      const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?data=${encodeURI(JSON.stringify(formData))}&task=model`;
-
-      console.log(endpoint);
-
-      fetch(endpoint, {
-        method: "POST",
-        mode: "cors",
-      })
-        .then((response) => {
-          if (response.status !== 200) {
-            console.error("Error:", response);
-          } else {
-            console.log("Form data submitted:", formData);
-            resetForm();
-          }
-        })
-        .catch((error) => {
-          console.error("Fetch error:", error);
-        });
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        const fieldErrors: Partial<Record<keyof FormData, string>> = {};
-        e.errors.forEach((err) => {
-          if (err.path[0] in formData) {
-            fieldErrors[err.path[0] as keyof FormData] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
-    }
+    handleSubmitHelper<FormData>(
+      event,
+      "model",
+      FormSchema,
+      formData,
+      setErrors,
+      resetForm,
+    );
   };
 
   const resetForm = () => {
