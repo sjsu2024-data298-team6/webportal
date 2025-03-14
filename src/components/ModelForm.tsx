@@ -52,7 +52,10 @@ const FormSchema = z.object({
       }
     }, "Something went wrong during validation"),
   model: z.string().nonempty("Model type is required"),
-  tags: z.string().array(),
+  tags: z
+    .string()
+    .regex(/^[\w-]+$/, "Can only contain alphanumeric, underscore, and dashes")
+    .array(),
 });
 
 interface FormData {
