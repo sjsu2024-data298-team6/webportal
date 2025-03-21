@@ -24,6 +24,7 @@ const handleSubmitHelper = <T>(
       .then((response) => {
         if (response.status !== 200) {
           console.error("Error:", response);
+          response.json().then((text) => alert(text));
         } else {
           console.log("Form data submitted:", data);
           resetForm();
