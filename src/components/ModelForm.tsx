@@ -56,7 +56,8 @@ const FormSchema = z.object({
   tags: z
     .string()
     .regex(/^[\w-]+$/, "Can only contain alphanumeric, underscore, and dashes")
-    .array(),
+    .array()
+    .optional(),
 });
 
 interface FormData {
