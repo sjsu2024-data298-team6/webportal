@@ -58,6 +58,7 @@ const FormSchema = z.object({
     .regex(/^[\w-]+$/, "Can only contain alphanumeric, underscore, and dashes")
     .array()
     .optional(),
+  yaml_utkey: z.string().url().optional(),
 });
 
 interface FormData {
@@ -81,7 +82,7 @@ export default function ModelForm() {
     {},
   );
 
-  const handleChange = (key: keyof FormData, value: string) => {
+  const handleChange = (key: keyof FormData, value: string | string[]) => {
     console.log(key, value);
     setFormData((prev) => ({
       ...prev,
