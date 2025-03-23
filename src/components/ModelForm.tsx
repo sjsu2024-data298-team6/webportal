@@ -2,7 +2,7 @@ import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
 import FileUploadFormEntry from "@/components/FileUploadFormEntry";
 import TagsFormEntry from "@/components/TagsFormEntry";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import FormPart from "@/components/FormPart";
 import handleSubmitHelper from "@/utils/formSubmit";
@@ -82,6 +82,18 @@ export default function ModelForm() {
     {},
   );
 
+  const [modelTypesList, setModelTypesList] = useState([]);
+
+  useEffect(() => {
+    const fetchDatasetLinks = async () => {
+      const response = await fetch("/api/models");
+      const data = await response.json();
+      setModelTypesList(data);
+    };
+
+    fetchDatasetLinks();
+  }, []);
+
   const handleChange = (key: keyof FormData, value: string | string[]) => {
     console.log(key, value);
     setFormData((prev) => ({
@@ -151,11 +163,7 @@ export default function ModelForm() {
       <DropdownFormEntry
         heading="Type"
         formkey="model"
-        options={[
-          { name: "YOLOv11", value: "yolo" },
-          { name: "Custom YOLOv8", value: "custom_yolo" },
-          { name: "RT-DETR", value: "rtdetr" },
-        ]}
+        options={modelTypesList}
         value={formData.model}
         onChange={(value) => handleChange("model", value)}
       />

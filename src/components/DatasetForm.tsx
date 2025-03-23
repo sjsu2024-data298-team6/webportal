@@ -1,6 +1,6 @@
 import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import FormPart from "./FormPart";
 import handleSubmitHelper from "@/utils/formSubmit";
@@ -30,6 +30,18 @@ export default function DatasetForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
     {},
   );
+
+  const [dslinks, setDslinks] = useState([]);
+
+  useEffect(() => {
+    const fetchDatasetLinks = async () => {
+      const response = await fetch("/api/datasets");
+      const data = await response.json();
+      setDslinks(data);
+    };
+
+    fetchDatasetLinks();
+  }, []);
 
   const handleChange = (key: keyof FormData, value: string) => {
     setFormData((prev) => ({
@@ -98,10 +110,7 @@ export default function DatasetForm() {
       <DropdownFormEntry
         heading="Type"
         formkey="dataset_type"
-        options={[
-          { name: "VisDrone Direct Zip", value: "visdrone" },
-          { name: "Roboflow Link", value: "roboflow" },
-        ]}
+        options={dslinks}
         value={formData.datasetType}
         onChange={(value) => handleChange("datasetType", value)}
       />

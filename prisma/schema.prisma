@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model DatasetLinkType {
+  id Int @id @default(autoincrement())
+  value String
+  name String
+  isActive Boolean @default(true)
+}
+
+model DatasetBaseType {
+  id Int @id @default(autoincrement())
+  value String
+  name String
+  isActive Boolean @default(true)
+  modelBaseTypes ModelBaseType[]
+  datasets Dataset[]
+}
+
+model ModelBaseType {
+  id Int @id @default(autoincrement())
+  value String
+  name String
+  datasetType DatasetBaseType @relation(fields: [datasetTypeId], references: [id])
+  datasetTypeId Int
+  isActive Boolean @default(true)
+  modelResults ModelResults[]
+}
+
+model Dataset {
+  id Int @id @default(autoincrement())
+  datasetType DatasetBaseType @relation(fields: [datasetTypeId], references: [id])
+  datasetTypeId Int
+  s3Key String
+  links String[]
+  tags String[]
+  modelResults ModelResults[]
+}
+
+
+model ModelResults {
+  id Int @id @default(autoincrement())
+  dataset Dataset @relation(fields: [datasetId], references: [id])
+  datasetId Int
+  modelType ModelBaseType @relation(fields: [modelTypeId], references: [id])
+  modelTypeId Int
+  params Json
+  extras Json @ default("{}")
+  iouScore Float?
+  map50Score Float?
+  map5095Score Float?
+  inferenceTime Float?
+  tags String[]
+  resultsS3Key String
+  modelS3Key String
+}
