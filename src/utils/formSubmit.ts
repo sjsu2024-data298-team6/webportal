@@ -23,8 +23,14 @@ const handleSubmitHelper = <T>(
     })
       .then((response) => {
         if (response.status !== 200) {
-          console.error("Error:", response);
-          response.json().then((text) => alert(text));
+          console.error("Error response:", response);
+          response.json().then((text) => {
+            console.error("Error text:", text);
+            alert(text);
+            setErrors({ model: "Submission failed" } as Partial<
+              Record<keyof T, string>
+            >);
+          });
         } else {
           console.log("Form data submitted:", data);
           resetForm();
@@ -32,6 +38,10 @@ const handleSubmitHelper = <T>(
       })
       .catch((error) => {
         console.error("Fetch error:", error);
+        alert("Failed to submit form. Please try again.");
+        setErrors({ model: "Submission failed" } as Partial<
+          Record<keyof T, string>
+        >);
       });
   } catch (e) {
     if (e instanceof z.ZodError) {
