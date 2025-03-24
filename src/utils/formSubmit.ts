@@ -13,7 +13,7 @@ const handleSubmitHelper = <T>(
 
   try {
     Schema.parse(data);
-    const endpoint = `${process.env.NEXT_PUBLIC_LAMBDA_URL}?data=${encodeURIComponent(
+    const endpoint = `/api/proxy?data=${encodeURIComponent(
       JSON.stringify(data),
     )}&task=${task}`;
 
