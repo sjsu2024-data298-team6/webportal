@@ -154,7 +154,7 @@ export default function ModelForm() {
       model: "yolo",
       yaml_utkey: undefined,
       datasetId: 1,
-      tags: [""],
+      tags: ["test"],
     });
     setErrors({});
   };
@@ -204,6 +204,7 @@ export default function ModelForm() {
         formkey="tags"
         onTagsChange={(value) => handleChange("tags", value)}
         reset={tagsReset}
+        initialTags={formData.tags}
       />
       {errors.tags && <span className="text-red-500">{errors.tags}</span>}
 

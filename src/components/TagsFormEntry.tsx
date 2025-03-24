@@ -14,6 +14,7 @@ interface TagInputProps {
   heading: string;
   formkey: string;
   reset: number;
+  initialTags?: string[];
 }
 
 export default function TagsFormEntry({
@@ -23,8 +24,9 @@ export default function TagsFormEntry({
   heading,
   formkey,
   reset = 0,
+  initialTags = [],
 }: TagInputProps) {
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [inputValue, setInputValue] = useState("");
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +38,10 @@ export default function TagsFormEntry({
       resetInternal();
     }
   }, [reset]);
+
+  useEffect(() => {
+    setTags(initialTags);
+  }, [initialTags]);
 
   const resetInternal = () => {
     setTags([]);
