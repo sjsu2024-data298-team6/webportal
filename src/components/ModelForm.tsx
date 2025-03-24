@@ -64,7 +64,7 @@ const FormSchema = z.object({
 interface FormData {
   params: string;
   model: string;
-  yaml_utkey: string;
+  yaml_utkey?: string;
   tags: string[];
 }
 
@@ -72,7 +72,6 @@ export default function ModelForm() {
   const [formData, setFormData] = useState<FormData>({
     params: "",
     model: "",
-    yaml_utkey: "",
     tags: [""],
   });
 
@@ -104,7 +103,7 @@ export default function ModelForm() {
     if (value !== "custom_yolo" && key === "model") {
       setFormData((prev) => ({
         ...prev,
-        ["yaml_utkey"]: "",
+        ["yaml_utkey"]: undefined,
         ["tags"]: [""],
       }));
     }
@@ -134,7 +133,7 @@ export default function ModelForm() {
     setFormData({
       params: "",
       model: "",
-      yaml_utkey: "",
+      yaml_utkey: undefined,
       tags: [""],
     });
     setErrors({});
@@ -145,8 +144,8 @@ export default function ModelForm() {
     setFormData({
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
       model: "yolo",
-      yaml_utkey: "",
       tags: [""],
+      yaml_utkey: undefined,
     });
     setErrors({});
   };
