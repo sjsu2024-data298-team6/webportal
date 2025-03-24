@@ -2,6 +2,7 @@ import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
 import FileUploadFormEntry from "@/components/FileUploadFormEntry";
 import TagsFormEntry from "@/components/TagsFormEntry";
+import DatasetTable from "@/components/DatasetTable";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import FormPart from "@/components/FormPart";
@@ -53,6 +54,7 @@ const FormSchema = z.object({
       }
     }, "Something went wrong during validation"),
   model: z.string().nonempty("Model type is required"),
+  datasetId: z.number(),
   tags: z
     .string()
     .regex(/^[\w-]+$/, "Can only contain alphanumeric, underscore, and dashes")
@@ -64,6 +66,7 @@ const FormSchema = z.object({
 interface FormData {
   params: string;
   model: string;
+  datasetId?: number;
   yaml_utkey?: string;
   tags: string[];
 }
@@ -93,7 +96,10 @@ export default function ModelForm() {
     fetchDatasetLinks();
   }, []);
 
-  const handleChange = (key: keyof FormData, value: string | string[]) => {
+  const handleChange = (
+    key: keyof FormData,
+    value: string | string[] | number,
+  ) => {
     console.log(key, value);
     setFormData((prev) => ({
       ...prev,
@@ -105,6 +111,7 @@ export default function ModelForm() {
         ...prev,
         ["yaml_utkey"]: undefined,
         ["tags"]: [""],
+        ["datasetId"]: undefined,
       }));
     }
 
@@ -135,6 +142,7 @@ export default function ModelForm() {
       model: "",
       yaml_utkey: undefined,
       tags: [""],
+      datasetId: undefined,
     });
     setErrors({});
     setTagsReset(tagsReset + 1);
@@ -144,8 +152,9 @@ export default function ModelForm() {
     setFormData({
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
       model: "yolo",
-      tags: [""],
       yaml_utkey: undefined,
+      datasetId: 1,
+      tags: [""],
     });
     setErrors({});
   };
@@ -167,6 +176,17 @@ export default function ModelForm() {
         onChange={(value) => handleChange("model", value)}
       />
       {errors.model && <span className="text-red-500">{errors.model}</span>}
+
+      {formData.model && (
+        <DatasetTable
+          model={formData.model}
+          onSelect={(value) => handleChange("datasetId", value.id)}
+          selectedId={formData.datasetId}
+        />
+      )}
+      {errors.datasetId && (
+        <span className="text-red-500">{errors.datasetId}</span>
+      )}
 
       <TextFormEntry
         heading="Parameters"
