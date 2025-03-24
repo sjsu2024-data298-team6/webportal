@@ -75,7 +75,7 @@ export default function ModelForm() {
   const [formData, setFormData] = useState<FormData>({
     params: "",
     model: "",
-    tags: [""],
+    tags: [],
   });
 
   const [tagsReset, setTagsReset] = useState<number>(0);
@@ -110,7 +110,7 @@ export default function ModelForm() {
       setFormData((prev) => ({
         ...prev,
         ["yaml_utkey"]: undefined,
-        ["tags"]: [""],
+        ["tags"]: [],
         ["datasetId"]: undefined,
       }));
     }
@@ -141,7 +141,7 @@ export default function ModelForm() {
       params: "",
       model: "",
       yaml_utkey: undefined,
-      tags: [""],
+      tags: [],
       datasetId: undefined,
     });
     setErrors({});
