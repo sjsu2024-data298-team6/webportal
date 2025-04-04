@@ -53,6 +53,11 @@ async function main() {
         name: "Custom YOLOv8 experimental base",
         datasetTypeId: yoloDSTID.id,
       },
+      {
+        value: "custom_rtdetr",
+        name: "Custom YOLOv8 with RTDETR experimental base",
+        datasetTypeId: yoloDSTID.id,
+      },
     ],
   });
 

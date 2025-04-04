@@ -106,7 +106,7 @@ export default function ModelForm() {
       [key]: value,
     }));
 
-    if (value !== "custom_yolo" && key === "model") {
+    if ((value !== "custom_yolo" && value !== "custom_rtdetr") && key === "model") {
       setFormData((prev) => ({
         ...prev,
         ["yaml_utkey"]: undefined,
@@ -208,7 +208,7 @@ export default function ModelForm() {
       />
       {errors.tags && <span className="text-red-500">{errors.tags}</span>}
 
-      {formData.model === "custom_yolo" && (
+      {(formData.model === "custom_yolo" || formData.model === "custom_rtdetr")&& (
         <FileUploadFormEntry
           heading="YAML model config file"
           formkey="yamlfile"
