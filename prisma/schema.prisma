@@ -65,4 +65,6 @@ model ModelResults {
   tags String[]
   resultsS3Key String
   modelS3Key String
+  tfjsS3Key String @default("")
+  isActive Boolean @default(true)
 }
