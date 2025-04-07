@@ -3,6 +3,7 @@ import { renderBoxes } from "./renderBoxes";
 import labels from "./labels.json";
 
 const numClass = labels.length;
+const numClass = labels.length; //TODO: use loaded model from AWS in the future
 
 /**
  * Preprocess image / frame before forwarded into the model
