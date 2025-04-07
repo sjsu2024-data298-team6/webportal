@@ -1,11 +1,13 @@
 import DatasetForm from "@/components/DatasetForm";
 import ModelForm from "@/components/ModelForm";
+import InferenceForm from "@/components/InferenceForm";
 import { useState } from "react";
 
 export default function Home() {
   const options: { value: string; title: string }[] = [
     { value: "model", title: "Train Model" },
     { value: "dataset", title: "Upload dataset" },
+    { value: "inference", title: "Inference"},
   ];
   const [selectedForm, setSelectedForm] = useState(options[0].value);
   return (
@@ -34,6 +36,7 @@ export default function Home() {
         </span>
         {selectedForm == "model" ? <ModelForm /> : null}
         {selectedForm == "dataset" ? <DatasetForm /> : null}
+        {selectedForm == "inference" ? <InferenceForm /> : null}
       </main>
       <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
         {" < "}
