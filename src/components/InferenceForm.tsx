@@ -13,7 +13,6 @@ export default function InferenceForm() {
   const [isCaptureEnable, setCaptureEnable] = useState(false);
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const webcamRef = useRef<Webcam>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [model, setModel] = useState<ModelInterface>({
     net: undefined,
     inputShape: undefined,
