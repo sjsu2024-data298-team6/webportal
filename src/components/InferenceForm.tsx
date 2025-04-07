@@ -13,7 +13,7 @@ export default function InferenceForm() {
   const [isCaptureEnable, setCaptureEnable] = useState(false);
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const webcamRef = useRef<Webcam>(null);
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [model, setModel] = useState<ModelInterface>({
     net: undefined,
     inputShape: undefined,
@@ -76,7 +76,7 @@ export default function InferenceForm() {
                 detectVideo(
                   webcamRef.current!.video!,
                   model,
-                  canvasRef.current!,
+                  webcamRef.current!.getCanvas()!,
                 )
               }
               className="mt-8 rounded-xl border border-black bg-blue-400 px-4 py-1 hover:bg-blue-500"
