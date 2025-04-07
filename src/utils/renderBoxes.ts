@@ -9,7 +9,13 @@ import labels from "./labels.json";
 //}
 
 //export const renderBoxes = ({canvasRef, boxes_data, scores_data, classes_data, ratios}:BoxParams) => {
-export const renderBoxes = (canvasRef:HTMLCanvasElement, boxes_data:number[], scores_data:number[], classes_data:number[], ratios: [number, number]) => {
+export const renderBoxes = (
+  canvasRef: HTMLCanvasElement,
+  boxes_data: number[],
+  scores_data: number[],
+  classes_data: number[],
+  ratios: [number, number],
+) => {
   const ctx = canvasRef.getContext("2d")!;
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
@@ -18,7 +24,7 @@ export const renderBoxes = (canvasRef:HTMLCanvasElement, boxes_data:number[], sc
   // font configs
   const font = `${Math.max(
     Math.round(Math.max(ctx.canvas.width, ctx.canvas.height) / 40),
-    14
+    14,
   )}px Arial`;
   ctx.font = font;
   ctx.textBaseline = "top";
@@ -43,7 +49,10 @@ export const renderBoxes = (canvasRef:HTMLCanvasElement, boxes_data:number[], sc
 
     // draw border box.
     ctx.strokeStyle = color;
-    ctx.lineWidth = Math.max(Math.min(ctx.canvas.width, ctx.canvas.height) / 200, 2.5);
+    ctx.lineWidth = Math.max(
+      Math.min(ctx.canvas.width, ctx.canvas.height) / 200,
+      2.5,
+    );
     ctx.strokeRect(x1, y1, width, height);
 
     // Draw the label background.
@@ -55,7 +64,7 @@ export const renderBoxes = (canvasRef:HTMLCanvasElement, boxes_data:number[], sc
       x1 - 1,
       yText < 0 ? 0 : yText, // handle overflow label box
       textWidth + ctx.lineWidth,
-      textHeight + ctx.lineWidth
+      textHeight + ctx.lineWidth,
     );
 
     // Draw labels
@@ -103,7 +112,7 @@ class Colors {
     if (!result) {
       return `rgba(0, 0, 0, ${alpha})`;
     }
-    return `rgba(${[parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(", ")}, ${alpha})`
+    return `rgba(${[parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(", ")}, ${alpha})`;
     //return result
     //  ? `rgba(${[parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(
     //      ", "
@@ -111,3 +120,4 @@ class Colors {
     //  : null;
   };
 }
+

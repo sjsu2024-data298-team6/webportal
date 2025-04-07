@@ -12,11 +12,22 @@ const numClass = labels.length;
  * @returns input tensor, xRatio and yRatio
  */
 
-const preprocess = (source: HTMLVideoElement|HTMLImageElement, modelWidth: number, modelHeight: number):
-[tf.Tensor, { scale: number; dx: number; dy: number; origWidth: number; origHeight: number }] => {
-
+const preprocess = (
+  source: HTMLVideoElement | HTMLImageElement,
+  modelWidth: number,
+  modelHeight: number,
+): [
+  tf.Tensor,
+  {
+    scale: number;
+    dx: number;
+    dy: number;
+    origWidth: number;
+    origHeight: number;
+  },
+] => {
   const imgTensor = tf.browser.fromPixels(source);
-  const [origHeight, origWidth] = imgTensor.shape.slice(0,2)
+  const [origHeight, origWidth] = imgTensor.shape.slice(0, 2);
 
   // Compute the scaling factor (preserve aspect ratio)
   const scale = Math.min(modelWidth / origWidth, modelHeight / origHeight);
@@ -24,7 +35,9 @@ const preprocess = (source: HTMLVideoElement|HTMLImageElement, modelWidth: numbe
   const newHeight = Math.round(origHeight * scale);
 
   // Resize image with the uniform scale.
-  const resized = tf.image.resizeBilinear(imgTensor, [newHeight, newWidth]).div(255.0);
+  const resized = tf.image
+    .resizeBilinear(imgTensor, [newHeight, newWidth])
+    .div(255.0);
 
   // Compute padding (center the resized image in the model input)
   const dx = Math.floor((modelWidth - newWidth) / 2);
@@ -32,14 +45,11 @@ const preprocess = (source: HTMLVideoElement|HTMLImageElement, modelWidth: numbe
 
   // Pad the resized image so that it becomes modelWidth x modelHeight
   const padded = tf.tidy(() => {
-    return tf.pad(
-      resized,
-      [
-        [dy, modelHeight - newHeight - dy],
-        [dx, modelWidth - newWidth - dx],
-        [0, 0],
-      ]
-    );
+    return tf.pad(resized, [
+      [dy, modelHeight - newHeight - dy],
+      [dx, modelWidth - newWidth - dx],
+      [0, 0],
+    ]);
   });
 
   // Expand dims to add the batch dimension
@@ -48,9 +58,8 @@ const preprocess = (source: HTMLVideoElement|HTMLImageElement, modelWidth: numbe
   // Dispose intermediate tensors if needed.
   tf.dispose([imgTensor, resized, padded]);
 
-  return [input, {scale, dx, dy, origWidth, origHeight}];
+  return [input, { scale, dx, dy, origWidth, origHeight }];
 };
-
 
 /**
  * Function run inference and do detection from source.
@@ -59,15 +68,24 @@ const preprocess = (source: HTMLVideoElement|HTMLImageElement, modelWidth: numbe
  * @param {HTMLCanvasElement} canvasRef canvas reference
  * @param {VoidFunction} callback function to run after detection process
  */
-export const detect = async (source: HTMLImageElement|HTMLVideoElement, model: tf.GraphModel, canvasRef: HTMLCanvasElement, callback:VoidFunction = () => {}) => {
+export const detect = async (
+  source: HTMLImageElement | HTMLVideoElement,
+  model: tf.GraphModel,
+  canvasRef: HTMLCanvasElement,
+  callback: VoidFunction = () => {},
+) => {
   const inputShape = model.inputs[0].shape as number[]; // Model's first input shape
-  const [modelWidth, modelHeight]= inputShape.slice(1,3)//model.inputShape.slice(1, 3); // get model width and height
+  const [modelWidth, modelHeight] = inputShape.slice(1, 3); //model.inputShape.slice(1, 3); // get model width and height
 
   tf.engine().startScope(); // start scoping tf engine
-  const [input, {scale, dx, dy, origWidth, origHeight}] = preprocess(source, modelWidth, modelHeight); // preprocess image
+  const [input, { scale, dx, dy, origWidth, origHeight }] = preprocess(
+    source,
+    modelWidth,
+    modelHeight,
+  ); // preprocess image
 
   //const res = model.net.execute(input); // inference model
-  const res = model.execute(input) as tf.Tensor
+  const res = model.execute(input) as tf.Tensor;
 
   const transRes = res.transpose([0, 2, 1]); // transpose result [b, det, n] => [b, n, det]
   const boxes = tf.tidy(() => {
@@ -83,20 +101,28 @@ export const detect = async (source: HTMLImageElement|HTMLVideoElement, model: t
           tf.add(y1, h), //y2
           tf.add(x1, w), //x2
         ],
-        2
+        2,
       )
       .squeeze();
   }); // process boxes [y1, x1, y2, x2]
 
   const [scores, classes] = tf.tidy(() => {
     // class scores
-    const rawScores = transRes.slice([0, 0, 4], ([-1, -1, numClass] as [number, number, number])).squeeze([0]); // #6 only squeeze axis 0 to handle only 1 class models
+    const rawScores = transRes
+      .slice([0, 0, 4], [-1, -1, numClass] as [number, number, number])
+      .squeeze([0]); // #6 only squeeze axis 0 to handle only 1 class models
     return [rawScores.max(1), rawScores.argMax(1)];
   }); // get max scores and classes index
 
-  const nms = await tf.image.nonMaxSuppressionAsync(boxes as tf.Tensor2D, scores as tf.Tensor1D, 500, 0.45, 0.2); // NMS to filter boxes
+  const nms = await tf.image.nonMaxSuppressionAsync(
+    boxes as tf.Tensor2D,
+    scores as tf.Tensor1D,
+    500,
+    0.45,
+    0.2,
+  ); // NMS to filter boxes
 
-  const boxes_data = boxes.gather(nms, 0).dataSync() // indexing boxes by nms index
+  const boxes_data = boxes.gather(nms, 0).dataSync(); // indexing boxes by nms index
   const scores_data = scores.gather(nms, 0).dataSync(); // indexing scores by nms index
   const classes_data = classes.gather(nms, 0).dataSync(); // indexing classes by nms index
   const adjustedBoxes: number[] = [];
@@ -112,7 +138,10 @@ export const detect = async (source: HTMLImageElement|HTMLVideoElement, model: t
   }
 
   // replaced boxes_data with adjustedBoxes
-  renderBoxes(canvasRef, adjustedBoxes, scores_data, classes_data, [origWidth, origHeight]); // render boxes
+  renderBoxes(canvasRef, adjustedBoxes, scores_data, classes_data, [
+    origWidth,
+    origHeight,
+  ]); // render boxes
   tf.dispose([res, transRes, boxes, scores, classes, nms]); // clear memory
 
   callback();
@@ -126,7 +155,11 @@ export const detect = async (source: HTMLImageElement|HTMLVideoElement, model: t
  * @param {tf.GraphModel} model loaded YOLOv8 tensorflow.js model
  * @param {HTMLCanvasElement} canvasRef canvas reference
  */
-export const detectVideo = (vidSource: HTMLVideoElement, model: tf.GraphModel, canvasRef: HTMLCanvasElement) => {
+export const detectVideo = (
+  vidSource: HTMLVideoElement,
+  model: tf.GraphModel,
+  canvasRef: HTMLCanvasElement,
+) => {
   /**
    * Function to detect every frame from video
    */
@@ -144,3 +177,4 @@ export const detectVideo = (vidSource: HTMLVideoElement, model: tf.GraphModel, c
 
   detectFrame(); // initialize to detect every frame
 };
+
