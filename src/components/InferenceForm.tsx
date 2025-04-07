@@ -76,8 +76,9 @@ export default function InferenceForm() {
                   canvasRef.current!,
                 )
               }
+              className="mt-8 rounded-xl border border-black bg-blue-400 px-4 py-1 hover:bg-blue-500"
             >
-              tst
+              Start Inference
             </button>
           </div>
         </>
