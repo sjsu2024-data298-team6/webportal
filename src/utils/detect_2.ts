@@ -2,16 +2,12 @@ import * as tf from "@tensorflow/tfjs";
 import { renderBoxes } from "./renderBoxes";
 import labels from "./labels.json";
 
-const numClass = labels.length;
-const numClass = labels.length; //TODO: use loaded model from AWS in the future
+export interface ModelInterface {
+  net: tf.GraphModel | undefined;
+  inputShape: number[] | undefined;
+}
 
-/**
- * Preprocess image / frame before forwarded into the model
- * @param {HTMLVideoElement|HTMLImageElement} source
- * @param {Number} modelWidth
- * @param {Number} modelHeight
- * @returns input tensor, xRatio and yRatio
- */
+const numClass = labels.length; //TODO: use loaded model from AWS in the future
 
 const preprocess = (
   source: HTMLVideoElement | HTMLImageElement,
@@ -62,21 +58,18 @@ const preprocess = (
   return [input, { scale, dx, dy, origWidth, origHeight }];
 };
 
-/**
- * Function run inference and do detection from source.
- * @param {HTMLImageElement|HTMLVideoElement} source
- * @param {tf.GraphModel} model loaded YOLOv8 tensorflow.js model
- * @param {HTMLCanvasElement} canvasRef canvas reference
- * @param {VoidFunction} callback function to run after detection process
- */
 export const detect = async (
   source: HTMLImageElement | HTMLVideoElement,
-  model: tf.GraphModel,
+  model: ModelInterface,
   canvasRef: HTMLCanvasElement,
   callback: VoidFunction = () => {},
 ) => {
-  const inputShape = model.inputs[0].shape as number[]; // Model's first input shape
-  const [modelWidth, modelHeight] = inputShape.slice(1, 3); //model.inputShape.slice(1, 3); // get model width and height
+  if (model.net === undefined || model.inputShape === undefined) {
+    throw new Error("Model is not defined properly!");
+  }
+
+  const inputShape = model.inputShape; // Model's first input shape
+  const [modelWidth, modelHeight] = inputShape.slice(1, 3); // get model width and height
 
   tf.engine().startScope(); // start scoping tf engine
   const [input, { scale, dx, dy, origWidth, origHeight }] = preprocess(
@@ -85,8 +78,7 @@ export const detect = async (
     modelHeight,
   ); // preprocess image
 
-  //const res = model.net.execute(input); // inference model
-  const res = model.execute(input) as tf.Tensor;
+  const res = model.net.execute(input) as tf.Tensor;
 
   const transRes = res.transpose([0, 2, 1]); // transpose result [b, det, n] => [b, n, det]
   const boxes = tf.tidy(() => {
@@ -150,15 +142,9 @@ export const detect = async (
   tf.engine().endScope(); // end of scoping
 };
 
-/**
- * Function to detect video from every source.
- * @param {HTMLVideoElement} vidSource video source
- * @param {tf.GraphModel} model loaded YOLOv8 tensorflow.js model
- * @param {HTMLCanvasElement} canvasRef canvas reference
- */
 export const detectVideo = (
   vidSource: HTMLVideoElement,
-  model: tf.GraphModel,
+  model: ModelInterface,
   canvasRef: HTMLCanvasElement,
 ) => {
   /**

@@ -1,14 +1,5 @@
 import labels from "./labels.json";
 
-//interface BoxParams {
-//  canvasRef: HTMLCanvasElement;
-// boxes_data: number[] | Float32Array;
-//  scores_data: number[] | Float32Array;
-//  classes_data: number[] | Float32Array;
-//  ratios: [number, number];
-//}
-
-//export const renderBoxes = ({canvasRef, boxes_data, scores_data, classes_data, ratios}:BoxParams) => {
 export const renderBoxes = (
   canvasRef: HTMLCanvasElement,
   boxes_data: number[],
@@ -108,16 +99,11 @@ class Colors {
   get = (i: number) => this.palette[Math.floor(i) % this.n];
 
   static hexToRgba = (hex: string, alpha: number) => {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!result) {
       return `rgba(0, 0, 0, ${alpha})`;
     }
     return `rgba(${[parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(", ")}, ${alpha})`;
-    //return result
-    //  ? `rgba(${[parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)].join(
-    //      ", "
-    //    )}, ${alpha})`
-    //  : null;
   };
 }
 

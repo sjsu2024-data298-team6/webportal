@@ -1,7 +1,7 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import * as tf from "@tensorflow/tfjs";
-import { detectVideo } from "@/utils/detect_2";
+import { detectVideo, ModelInterface } from "@/utils/detect_2";
 
 const videoConstraints = {
   width: 720,
@@ -14,7 +14,10 @@ export default function InferenceForm() {
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef(null);
-  const [model, setModel] = useState<any>(null); // State to store the model
+  const [model, setModel] = useState<ModelInterface>({
+    net: undefined,
+    inputShape: undefined,
+  }); // State to store the model
   useEffect(() => {
     tf.ready().then(async () => {
       const yolov8 = await tf.loadGraphModel(
