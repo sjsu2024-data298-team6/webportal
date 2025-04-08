@@ -129,6 +129,9 @@ export default function InferenceForm() {
             ) : (
               <button
                 onClick={() => {
+                  let ctx = canvasRef.current!.getContext("2d")!;
+                  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                  ctx = canvasRef.current!.getContext("2d")!;
                   setIsInferencing(false);
                   stopRef.current = true;
                 }}
