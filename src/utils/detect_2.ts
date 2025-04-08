@@ -131,10 +131,13 @@ export const detect = async (
   }
 
   // replaced boxes_data with adjustedBoxes
-  renderBoxes(canvasRef, adjustedBoxes, scores_data, classes_data, [
-    origWidth,
-    origHeight,
-  ]); // render boxes
+  renderBoxes(
+    canvasRef,
+    adjustedBoxes,
+    scores_data,
+    classes_data,
+    // [ origWidth, origHeight ],
+  ); // render boxes
   tf.dispose([res, transRes, boxes, scores, classes, nms]); // clear memory
 
   callback();

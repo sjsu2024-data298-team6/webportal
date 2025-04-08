@@ -5,7 +5,7 @@ export const renderBoxes = (
   boxes_data: number[],
   scores_data: number[],
   classes_data: number[],
-  ratios: [number, number],
+  // ratios: [number, number],
 ) => {
   const ctx = canvasRef.getContext("2d")!;
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
