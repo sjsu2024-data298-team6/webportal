@@ -14,6 +14,7 @@ export default function InferenceForm() {
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const [isInferencing, setIsInferencing] = useState(false);
   const webcamRef = useRef<Webcam>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const stopRef = useRef<boolean>(false);
   const [model, setModel] = useState<ModelInterface>({
     net: undefined,
@@ -47,8 +48,18 @@ export default function InferenceForm() {
     });
   }, []);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const video = webcamRef.current?.video;
+
+    if (canvas && video) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+  }, []);
+
   return (
-    <>
+    <div className="w-full">
       {isCaptureEnable || (
         <button
           className={
@@ -65,7 +76,7 @@ export default function InferenceForm() {
         <>
           <div>
             <button
-              className="rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
+              className="mb-8 rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
               onClick={() => {
                 setCaptureEnable(false);
                 setIsInferencing(false);
@@ -76,14 +87,29 @@ export default function InferenceForm() {
             </button>
           </div>
           <div>
-            <Webcam
-              audio={false}
-              width={720}
-              height={512}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              videoConstraints={videoConstraints}
-            />
+            <div className="relative aspect-video w-full">
+              <Webcam
+                audio={false}
+                width={720}
+                height={512}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={videoConstraints}
+                onLoadedMetadata={() => {
+                  const video = webcamRef.current?.video;
+                  const canvas = canvasRef.current;
+                  if (video && canvas) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                  }
+                }}
+                className="absolute left-0 top-0 h-full w-full object-cover"
+              />
+              <canvas
+                ref={canvasRef}
+                className="pointer-events-none absolute left-0 top-0 z-50 h-full w-full"
+              />
+            </div>
             {!isInferencing ? (
               <button
                 onClick={() => {
@@ -91,7 +117,7 @@ export default function InferenceForm() {
                   detectVideo(
                     webcamRef.current!.video!,
                     model,
-                    webcamRef.current!.getCanvas()!,
+                    canvasRef.current!,
                     stopRef,
                   );
                   setIsInferencing(true);
@@ -114,6 +140,6 @@ export default function InferenceForm() {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }
