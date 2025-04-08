@@ -146,6 +146,7 @@ export const detectVideo = (
   vidSource: HTMLVideoElement,
   model: ModelInterface,
   canvasRef: HTMLCanvasElement,
+  stopRef: { current: boolean } = { current: false },
 ) => {
   /**
    * Function to detect every frame from video
@@ -157,6 +158,10 @@ export const detectVideo = (
       return; // handle if source is closed
     }
 
+    if (stopRef.current) {
+      return; // stop detection if stop flag is set
+    }
+
     detect(vidSource, model, canvasRef, () => {
       requestAnimationFrame(detectFrame); // get another frame
     });
@@ -164,4 +169,3 @@ export const detectVideo = (
 
   detectFrame(); // initialize to detect every frame
 };
-

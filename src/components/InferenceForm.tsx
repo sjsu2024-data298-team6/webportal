@@ -12,11 +12,21 @@ const videoConstraints = {
 export default function InferenceForm() {
   const [isCaptureEnable, setCaptureEnable] = useState(false);
   const [isLoadingModel, setIsLoadingModel] = useState(true);
+  const [isInferencing, setIsInferencing] = useState(false);
   const webcamRef = useRef<Webcam>(null);
+  const stopRef = useRef<boolean>(false);
   const [model, setModel] = useState<ModelInterface>({
     net: undefined,
     inputShape: undefined,
   }); // State to store the model
+
+  useEffect(() => {
+    return () => {
+      stopRef.current = true;
+      setIsInferencing(false);
+    };
+  }, []);
+
   useEffect(() => {
     tf.ready().then(async () => {
       const yolov8 = await tf.loadGraphModel(
@@ -56,7 +66,11 @@ export default function InferenceForm() {
           <div>
             <button
               className="rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
-              onClick={() => setCaptureEnable(false)}
+              onClick={() => {
+                setCaptureEnable(false);
+                setIsInferencing(false);
+                stopRef.current = true;
+              }}
             >
               Close Webcam
             </button>
@@ -70,18 +84,33 @@ export default function InferenceForm() {
               screenshotFormat="image/jpeg"
               videoConstraints={videoConstraints}
             />
-            <button
-              onClick={() =>
-                detectVideo(
-                  webcamRef.current!.video!,
-                  model,
-                  webcamRef.current!.getCanvas()!,
-                )
-              }
-              className="mt-8 rounded-xl border border-black bg-blue-400 px-4 py-1 hover:bg-blue-500"
-            >
-              Start Inference
-            </button>
+            {!isInferencing ? (
+              <button
+                onClick={() => {
+                  stopRef.current = false;
+                  detectVideo(
+                    webcamRef.current!.video!,
+                    model,
+                    webcamRef.current!.getCanvas()!,
+                    stopRef,
+                  );
+                  setIsInferencing(true);
+                }}
+                className="mt-8 rounded-xl border border-black bg-blue-400 px-4 py-1 hover:bg-blue-500"
+              >
+                Start Inference
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsInferencing(false);
+                  stopRef.current = true;
+                }}
+                className="mt-8 rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
+              >
+                Stop Inference
+              </button>
+            )}
           </div>
         </>
       )}
