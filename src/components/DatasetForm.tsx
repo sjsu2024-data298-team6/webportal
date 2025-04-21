@@ -2,8 +2,9 @@ import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import FormPart from "./FormPart";
+import { FormPart } from "./FormPart";
 import handleSubmitHelper from "@/utils/formSubmit";
+import { Button } from "@/components/ui/button";
 
 const FormSchema = z.object({
   url: z.string().url("Invalid URL format"),
@@ -90,42 +91,58 @@ export default function DatasetForm() {
   };
 
   return (
-    <FormPart<FormData>
-      handleSubmit={handleSubmit}
-      resetForm={resetForm}
-      loadDevInputs={loadDevInputs}
-      errors={errors}
-    >
-      <span className="text-xl font-semibold">Dataset details</span>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <FormPart
+        title="Dataset Information"
+        description="Basic information about your dataset."
+      >
+        <TextFormEntry
+          heading="URL"
+          formkey="url"
+          placeholder="https://..."
+          value={formData.url}
+          onChange={(value) => handleChange("url", value)}
+        />
+        {errors.url && <span className="text-red-500">{errors.url}</span>}
 
-      <TextFormEntry
-        heading="URL"
-        formkey="url"
-        placeholder="https://..."
-        value={formData.url}
-        onChange={(value) => handleChange("url", value)}
-      />
-      {errors.url && <span className="text-red-500">{errors.url}</span>}
+        <DropdownFormEntry
+          heading="Type"
+          formkey="dataset_type"
+          options={dslinks}
+          value={formData.datasetType}
+          onChange={(value) => handleChange("datasetType", value)}
+        />
+        {errors.datasetType && (
+          <span className="text-red-500">{errors.datasetType}</span>
+        )}
 
-      <DropdownFormEntry
-        heading="Type"
-        formkey="dataset_type"
-        options={dslinks}
-        value={formData.datasetType}
-        onChange={(value) => handleChange("datasetType", value)}
-      />
-      {errors.datasetType && (
-        <span className="text-red-500">{errors.datasetType}</span>
-      )}
+        <TextFormEntry
+          heading="Class Names"
+          formkey="names"
+          placeholder="Enter the class names, comma separated, in the correct order"
+          value={formData.names}
+          onChange={(value) => handleChange("names", value)}
+        />
+        {errors.names && <span className="text-red-500">{errors.names}</span>}
+      </FormPart>
 
-      <TextFormEntry
-        heading="Class Names"
-        formkey="names"
-        placeholder="Enter the class names, comma separated, in the correct order"
-        value={formData.names}
-        onChange={(value) => handleChange("names", value)}
-      />
-      {errors.names && <span className="text-red-500">{errors.names}</span>}
-    </FormPart>
+      <div className="flex gap-4">
+        <Button
+          type="submit"
+          variant={"default"}
+          disabled={Object.values(errors).some((error) => error !== undefined)}
+        >
+          Submit
+        </Button>
+        <Button type="button" variant={"destructive"} onClick={resetForm}>
+          Clear
+        </Button>
+        {process.env.NEXT_PUBLIC_DEPLOYMENT !== "prod" && (
+          <Button type="button" variant={"outline"} onClick={loadDevInputs}>
+            Dev Inputs
+          </Button>
+        )}
+      </div>
+    </form>
   );
 }

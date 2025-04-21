@@ -1,70 +1,63 @@
-import DatasetForm from "@/components/DatasetForm";
-import ModelForm from "@/components/ModelForm";
-import InferenceForm from "@/components/InferenceForm";
-import { useState } from "react";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function Home() {
-  const options: { value: string; title: string }[] = [
-    { value: "model", title: "Train Model" },
-    { value: "dataset", title: "Upload dataset" },
-    { value: "inference", title: "Inference"},
-  ];
-  const [selectedForm, setSelectedForm] = useState(options[0].value);
   return (
-    <div className="grid min-h-screen grid-rows-[20px_1fr_20px] gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
-      <header className="row-start-1 flex flex-col items-center gap-8 sm:items-start">
-        <span className="text-3xl font-bold">
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8 text-center">
+        <h1 className="mb-4 text-4xl font-bold">
           Obstacle Detection for Drone Flight Path
-        </span>
-      </header>
-      <main className="row-start-2 flex w-full flex-col items-center gap-8 sm:items-start 2xl:w-2/3">
-        <span className="flex w-full flex-row items-start gap-8">
-          <label className="w-1/5 font-semibold">Select Task</label>
-          <select
-            className="w-4/5 grow appearance-none rounded border border-black bg-white px-1"
-            onChange={(e) => setSelectedForm(e.target.value)}
-          >
-            <option value="" disabled>
-              Please select an option
-            </option>
-            {options.map((option) => (
-              <option value={option.value} key={option.value}>
-                {option.title}
-              </option>
-            ))}
-          </select>
-        </span>
-        {selectedForm == "model" ? <ModelForm /> : null}
-        {selectedForm == "dataset" ? <DatasetForm /> : null}
-        {selectedForm == "inference" ? <InferenceForm /> : null}
-      </main>
-      <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
-        {" < "}
-        <span className="">SJSU Fall 2024</span>
-        {" | "}
-        <span className="">MSDA Capstone Project</span>
-        {" | "}
-        <a className="hover:underline" target="_blank">
-          Shrey Agarwal
-        </a>
-        {" | "}
-        <a
-          className="hover:underline"
-          href="https://github.com/ibrahimmkhalid"
-          target="_blank"
-        >
-          Ibrahim Khalid
-        </a>
-        {" | "}
-        <a className="hover:underline" target="_blank">
-          Sung Won Lee
-        </a>
-        {" | "}
-        <a className="hover:underline" target="_blank">
-          Justin Wang
-        </a>
-        {" > "}
-      </footer>
+        </h1>
+        <p className="text-muted-foreground">
+          Train models, upload datasets, and run inference for drone obstacle
+          detection
+        </p>
+      </div>
+
+      {/* Feature Cards Section */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <Link href="/model">
+          <Card className="transition-colors hover:bg-accent">
+            <CardHeader>
+              <CardTitle>Train Model</CardTitle>
+              <CardDescription>
+                Train a new model using your datasets
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Configure and train custom models for obstacle detection</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dataset">
+          <Card className="transition-colors hover:bg-accent">
+            <CardHeader>
+              <CardTitle>Upload Dataset</CardTitle>
+              <CardDescription>Add new datasets for training</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Upload and manage your training datasets</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/inference">
+          <Card className="transition-colors hover:bg-accent">
+            <CardHeader>
+              <CardTitle>Inference</CardTitle>
+              <CardDescription>Run inference on your models</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Test your trained models with new data</p>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
     </div>
   );
 }

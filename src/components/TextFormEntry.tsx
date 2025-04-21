@@ -1,3 +1,7 @@
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
 interface TextFormEntryProps {
   heading: string;
   formkey: string;
@@ -16,32 +20,27 @@ const TextFormEntry: React.FC<TextFormEntryProps> = ({
   onChange,
 }) => {
   return (
-    <span className="flex w-full flex-row items-start gap-8">
-      <label htmlFor={formkey} className="w-1/5 font-semibold">
-        {heading}
-      </label>
+    <div className="grid w-full gap-1.5">
+      <Label htmlFor={formkey}>{heading}</Label>
       {type === "textarea" ? (
-        <textarea
-          className="w-4/5 grow rounded border border-black px-1"
+        <Textarea
           id={formkey}
           name={formkey}
           placeholder={placeholder ?? ""}
-          rows={5}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-        ></textarea>
+        />
       ) : (
-        <input
-          className="w-4/5 grow rounded border border-black px-1"
+        <Input
           type={type}
           id={formkey}
           name={formkey}
           placeholder={placeholder ?? ""}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-        ></input>
+        />
       )}
-    </span>
+    </div>
   );
 };
 

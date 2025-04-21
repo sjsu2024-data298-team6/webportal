@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import * as tf from "@tensorflow/tfjs";
 import { detectVideo, ModelInterface } from "@/utils/detect_2";
+import { Button } from "@/components/ui/button";
 
 const videoConstraints = {
   width: 720,
@@ -30,9 +31,7 @@ export default function InferenceForm() {
 
   useEffect(() => {
     tf.ready().then(async () => {
-      const yolov8 = await tf.loadGraphModel(
-        `${window.location.href}/yolov8n_web_model/model.json`,
-      ); // load model
+      const yolov8 = await tf.loadGraphModel("/yolov8n_web_model/model.json"); // load model
       setIsLoadingModel(false);
 
       // warming up model
@@ -60,23 +59,19 @@ export default function InferenceForm() {
 
   return (
     <div className="w-full">
-      {isCaptureEnable || (
-        <button
-          className={
-            isLoadingModel
-              ? "rounded-xl border border-black bg-gray-300 px-4 py-1"
-              : "rounded-xl border border-black bg-blue-400 px-4 py-1 hover:bg-blue-500"
-          }
-          onClick={() => setCaptureEnable(true)}
-        >
-          {isLoadingModel ? "Loading..." : "Open Webcam"}
-        </button>
-      )}
+      {isCaptureEnable ||
+        (isLoadingModel ? (
+          <Button variant={"secondary"}>Loading...</Button>
+        ) : (
+          <Button variant={"default"} onClick={() => setCaptureEnable(true)}>
+            Open Webcam
+          </Button>
+        ))}
       {isCaptureEnable && (
         <>
           <div>
-            <button
-              className="mb-8 rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
+            <Button
+              variant={"destructive"}
               onClick={() => {
                 setCaptureEnable(false);
                 setIsInferencing(false);
@@ -84,10 +79,10 @@ export default function InferenceForm() {
               }}
             >
               Close Webcam
-            </button>
+            </Button>
           </div>
           <div>
-            <div className="relative aspect-video w-full">
+            <div className="relative my-4 aspect-video w-full">
               <Webcam
                 audio={false}
                 width={720}
@@ -111,7 +106,7 @@ export default function InferenceForm() {
               />
             </div>
             {!isInferencing ? (
-              <button
+              <Button
                 onClick={() => {
                   stopRef.current = false;
                   detectVideo(
@@ -122,12 +117,12 @@ export default function InferenceForm() {
                   );
                   setIsInferencing(true);
                 }}
-                className="mt-8 rounded-xl border border-black bg-blue-400 px-4 py-1 hover:bg-blue-500"
+                variant={"default"}
               >
                 Start Inference
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 onClick={() => {
                   let ctx = canvasRef.current!.getContext("2d")!;
                   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -135,10 +130,10 @@ export default function InferenceForm() {
                   setIsInferencing(false);
                   stopRef.current = true;
                 }}
-                className="mt-8 rounded-xl border border-black bg-red-500 px-4 py-1 hover:bg-red-600"
+                variant={"destructive"}
               >
                 Stop Inference
-              </button>
+              </Button>
             )}
           </div>
         </>

@@ -5,8 +5,9 @@ import TagsFormEntry from "@/components/TagsFormEntry";
 import DatasetTable from "@/components/DatasetTable";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import FormPart from "@/components/FormPart";
+import { FormPart } from "@/components/FormPart";
 import handleSubmitHelper from "@/utils/formSubmit";
+import { Button } from "@/components/ui/button";
 
 const ParamsSchema = z
   .object({
@@ -106,7 +107,11 @@ export default function ModelForm() {
       [key]: value,
     }));
 
-    if ((value !== "custom_yolo" && value !== "custom_rtdetr") && key === "model") {
+    if (
+      value !== "custom_yolo" &&
+      value !== "custom_rtdetr" &&
+      key === "model"
+    ) {
       setFormData((prev) => ({
         ...prev,
         ["yaml_utkey"]: undefined,
@@ -126,7 +131,7 @@ export default function ModelForm() {
   };
 
   const handleSubmit = (event: React.FormEvent) => {
-    handleSubmitHelper<FormData>(
+    handleSubmitHelper(
       event,
       "model",
       FormSchema,
@@ -160,61 +165,77 @@ export default function ModelForm() {
   };
 
   return (
-    <FormPart<FormData>
-      handleSubmit={handleSubmit}
-      resetForm={resetForm}
-      loadDevInputs={loadDevInputs}
-      errors={errors}
-    >
-      <span className="text-xl font-semibold">Model details</span>
-
-      <DropdownFormEntry
-        heading="Type"
-        formkey="model"
-        options={modelTypesList}
-        value={formData.model}
-        onChange={(value) => handleChange("model", value)}
-      />
-      {errors.model && <span className="text-red-500">{errors.model}</span>}
-
-      {formData.model && (
-        <DatasetTable
-          model={formData.model}
-          onSelect={(value) => handleChange("datasetId", value.id)}
-          selectedId={formData.datasetId}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <FormPart
+        title="Model Information"
+        description="Basic information about your model."
+      >
+        <DropdownFormEntry
+          heading="Type"
+          formkey="model"
+          options={modelTypesList}
+          value={formData.model}
+          onChange={(value) => handleChange("model", value)}
         />
-      )}
-      {errors.datasetId && (
-        <span className="text-red-500">{errors.datasetId}</span>
-      )}
+        {errors.model && <span className="text-red-500">{errors.model}</span>}
 
-      <TextFormEntry
-        heading="Parameters"
-        formkey="params"
-        placeholder="{...}"
-        type="textarea"
-        value={formData.params}
-        onChange={(value) => handleChange("params", value)}
-      />
-      {errors.params && <span className="text-red-500">{errors.params}</span>}
+        {formData.model && (
+          <DatasetTable
+            model={formData.model}
+            onSelect={(value) => handleChange("datasetId", value.id)}
+            selectedId={formData.datasetId}
+          />
+        )}
+        {errors.datasetId && (
+          <span className="text-red-500">{errors.datasetId}</span>
+        )}
 
-      <TagsFormEntry
-        placeholder=""
-        heading="Tags"
-        formkey="tags"
-        onTagsChange={(value) => handleChange("tags", value)}
-        reset={tagsReset}
-        initialTags={formData.tags}
-      />
-      {errors.tags && <span className="text-red-500">{errors.tags}</span>}
-
-      {(formData.model === "custom_yolo" || formData.model === "custom_rtdetr")&& (
-        <FileUploadFormEntry
-          heading="YAML model config file"
-          formkey="yamlfile"
-          onChange={(value) => handleChange("yaml_utkey", value)}
+        <TextFormEntry
+          heading="Parameters"
+          formkey="params"
+          placeholder="{...}"
+          type="textarea"
+          value={formData.params}
+          onChange={(value) => handleChange("params", value)}
         />
-      )}
-    </FormPart>
+        {errors.params && <span className="text-red-500">{errors.params}</span>}
+
+        <TagsFormEntry
+          placeholder=""
+          heading="Tags"
+          formkey="tags"
+          onTagsChange={(value) => handleChange("tags", value)}
+          reset={tagsReset}
+          initialTags={formData.tags}
+        />
+        {errors.tags && <span className="text-red-500">{errors.tags}</span>}
+
+        {(formData.model === "custom_yolo" ||
+          formData.model === "custom_rtdetr") && (
+          <FileUploadFormEntry
+            heading="YAML model config file"
+            formkey="yamlfile"
+            onChange={(value) => handleChange("yaml_utkey", value)}
+          />
+        )}
+      </FormPart>
+      <div className="flex gap-4">
+        <Button
+          type="submit"
+          disabled={Object.values(errors).some((error) => error !== undefined)}
+          variant={"default"}
+        >
+          Submit
+        </Button>
+        <Button type="button" variant={"destructive"} onClick={resetForm}>
+          Clear
+        </Button>
+        {process.env.NEXT_PUBLIC_DEPLOYMENT !== "prod" && (
+          <Button type="button" variant={"outline"} onClick={loadDevInputs}>
+            Dev Inputs
+          </Button>
+        )}
+      </div>
+    </form>
   );
 }
