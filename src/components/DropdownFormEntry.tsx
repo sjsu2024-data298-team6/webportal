@@ -1,3 +1,12 @@
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 interface DropdownFormEntryProps {
   heading: string;
   formkey: string;
@@ -14,27 +23,21 @@ const DropdownFormEntry: React.FC<DropdownFormEntryProps> = ({
   onChange,
 }) => {
   return (
-    <span className="flex w-full flex-row items-start gap-8">
-      <label htmlFor={formkey} className="w-1/5 font-semibold">
-        {heading}
-      </label>
-      <select
-        className="w-4/5 grow appearance-none rounded border border-black bg-white px-1"
-        id={formkey}
-        name={formkey}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="" disabled>
-          Please select an option
-        </option>
-        {options.map((option) => (
-          <option value={option.value} key={option.value}>
-            {option.name}
-          </option>
-        ))}
-      </select>
-    </span>
+    <div className="grid w-full gap-1.5">
+      <Label htmlFor={formkey}>{heading}</Label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger id={formkey}>
+          <SelectValue placeholder="Please select an option" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { z } from "zod";
+import { toast } from "@/hooks/use-toast";
 
 const handleSubmitHelper = <T>(
   e: React.FormEvent,
@@ -26,19 +27,33 @@ const handleSubmitHelper = <T>(
           console.error("Error response:", response);
           response.json().then((text) => {
             console.error("Error text:", text);
-            alert(text);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: text.error || "Failed to submit form",
+            });
             setErrors({ model: "Submission failed" } as Partial<
               Record<keyof T, string>
             >);
           });
         } else {
           console.log("Form data submitted:", data);
+          toast({
+            title: "Success",
+            description: task === "model" 
+              ? "Model training started successfully" 
+              : "Dataset uploaded successfully",
+          });
           resetForm();
         }
       })
       .catch((error) => {
         console.error("Fetch error:", error);
-        alert("Failed to submit form. Please try again.");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to submit form. Please try again.",
+        });
         setErrors({ model: "Submission failed" } as Partial<
           Record<keyof T, string>
         >);

@@ -1,19 +1,17 @@
-import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  useState,
-  type KeyboardEvent,
-  type ChangeEvent,
-  useEffect,
-} from "react";
+import { faXmarkCircle } from "@fortawesome/free-regular-svg-icons";
+import { useEffect, useState } from "react";
 
 interface TagInputProps {
   placeholder?: string;
   maxTags?: number;
-  onTagsChange?: (tags: string[]) => void;
+  onTagsChange: (tags: string[]) => void;
   heading: string;
   formkey: string;
-  reset: number;
+  reset?: number;
   initialTags?: string[];
 }
 
@@ -29,100 +27,67 @@ export default function TagsFormEntry({
   const [tags, setTags] = useState<string[]>(initialTags);
   const [inputValue, setInputValue] = useState("");
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setTags(initialTags);
+  }, [initialTags, reset]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  useEffect(() => {
-    if (reset) {
-      resetInternal();
-    }
-  }, [reset]);
-
-  useEffect(() => {
-    setTags(initialTags);
-  }, [initialTags]);
-
-  const resetInternal = () => {
-    setTags([]);
-    setInputValue("");
-  };
-
-  let backCounter = 0;
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputValue.trim()) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && inputValue.trim() !== "") {
       e.preventDefault();
-
-      // Don't add if we've reached the maximum number of tags
-      if (tags.length >= maxTags) return;
-
-      // Don't add duplicate tags
-      if (!tags.includes(inputValue.trim())) {
+      if (tags.length < maxTags) {
         const newTags = [...tags, inputValue.trim()];
         setTags(newTags);
-        onTagsChange?.(newTags);
+        onTagsChange(newTags);
+        setInputValue("");
       }
-
-      setInputValue("");
-    } else if (e.key === "Backspace") {
-      backCounter++;
-      if (backCounter == 2) {
-        backCounter = 0;
-        removeTag(-1);
-      }
+    } else if (e.key === "Backspace" && inputValue === "" && tags.length > 0) {
+      e.preventDefault();
+      const newTags = tags.slice(0, -1);
+      setTags(newTags);
+      onTagsChange(newTags);
     }
   };
 
-  const removeTag = (indexToRemove: number) => {
-    if (tags.length === 0) {
-      return;
-    }
-
-    const newTags =
-      indexToRemove === -1
-        ? tags.slice(0, -1)
-        : tags.filter((_, index) => index !== indexToRemove);
-
+  const removeTag = (index: number) => {
+    const newTags = tags.filter((_, i) => i !== index);
     setTags(newTags);
-    onTagsChange?.(newTags);
+    onTagsChange(newTags);
   };
 
   return (
-    <span className="flex w-full flex-row items-start gap-8">
-      <label htmlFor={formkey} className="w-1/5 font-semibold">
-        {heading}
-      </label>
-      <div className="flex w-4/5 flex-wrap gap-2 rounded border border-black">
+    <div className="grid w-full gap-1.5">
+      <Label htmlFor={formkey}>{heading}</Label>
+      <div className="flex w-full flex-wrap gap-2 rounded-md border p-2">
         <div className="flex flex-wrap gap-2">
           {tags.map((tag, index) => (
-            <div
-              key={index}
-              className="text-primary m-1 flex items-center gap-1 rounded bg-gray-100 px-1"
-            >
-              <span>{tag}</span>
+            <Badge key={index} variant="secondary" className="gap-1">
+              {tag}
               <button
                 type="button"
                 onClick={() => removeTag(index)}
-                className="text-primary/70 hover:text-primary focus:text-primary focus:outline-none"
+                className="ml-1 hover:text-destructive"
                 aria-label={`Remove ${tag} tag`}
               >
                 <FontAwesomeIcon icon={faXmarkCircle} size="sm" />
               </button>
-            </div>
+            </Badge>
           ))}
         </div>
-        <input
+        <Input
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={tags.length === 0 ? placeholder : ""}
-          className="w-4/5 grow rounded px-1 outline-none"
+          className="border-0 p-0 focus-visible:ring-0"
           id={formkey}
           name={formkey}
         />
       </div>
-    </span>
+    </div>
   );
 }

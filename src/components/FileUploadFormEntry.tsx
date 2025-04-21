@@ -1,4 +1,6 @@
+import { Label } from "@/components/ui/label";
 import { UploadButton } from "@/utils/uploadthing";
+
 interface FileUploadFormEntryProps {
   heading: string;
   formkey: string;
@@ -11,10 +13,8 @@ const FileUploadFormEntry: React.FC<FileUploadFormEntryProps> = ({
   onChange,
 }) => {
   return (
-    <span className="flex w-full flex-row items-start gap-8">
-      <label htmlFor={formkey} className="w-1/5 font-semibold">
-        {heading}
-      </label>
+    <div className="grid w-full gap-1.5">
+      <Label htmlFor={formkey}>{heading}</Label>
       <UploadButton
         endpoint="yamlFileUploader"
         onClientUploadComplete={(res) => {
@@ -23,8 +23,13 @@ const FileUploadFormEntry: React.FC<FileUploadFormEntryProps> = ({
         onUploadError={(error: Error) => {
           alert(`ERROR! ${error.message}`);
         }}
+        appearance={{
+          button: "ut-ready:bg-primary ut-uploading:cursor-not-allowed rounded-r-none ut-uploading:after:bg-primary",
+          container: "w-max flex-row rounded-md border-foreground/20 border",
+          allowedContent: "hidden",
+        }}
       />
-    </span>
+    </div>
   );
 };
 
