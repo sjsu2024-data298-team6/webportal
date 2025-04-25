@@ -24,7 +24,11 @@ interface DatasetTableProps {
   selectedId?: number;
 }
 
-export default function DatasetTable({ model, onSelect, selectedId }: DatasetTableProps) {
+export default function DatasetTable({
+  model,
+  onSelect,
+  selectedId,
+}: DatasetTableProps) {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,19 +36,19 @@ export default function DatasetTable({ model, onSelect, selectedId }: DatasetTab
   useEffect(() => {
     const fetchDatasets = async () => {
       if (!model) return;
-      
+
       setLoading(true);
       setError(null);
-      
+
       try {
         const response = await fetch(`/api/datasets/${model}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch datasets');
+          throw new Error("Failed to fetch datasets");
         }
         const data = await response.json();
         setDatasets(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -77,7 +81,9 @@ export default function DatasetTable({ model, onSelect, selectedId }: DatasetTab
     return (
       <div className="grid w-full gap-1.5">
         <Label>Datasets</Label>
-        <div className="text-center">No datasets available for this model type</div>
+        <div className="text-center">
+          No datasets available for this model type
+        </div>
       </div>
     );
   }
@@ -128,7 +134,10 @@ export default function DatasetTable({ model, onSelect, selectedId }: DatasetTab
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                       >
-                        <FontAwesomeIcon icon={faShareFromSquare} className="h-4 w-4" />
+                        <FontAwesomeIcon
+                          icon={faShareFromSquare}
+                          className="h-4 w-4"
+                        />
                         Source {index + 1}
                       </a>
                     ))}
@@ -141,4 +150,5 @@ export default function DatasetTable({ model, onSelect, selectedId }: DatasetTab
       </div>
     </div>
   );
-} 
+}
+

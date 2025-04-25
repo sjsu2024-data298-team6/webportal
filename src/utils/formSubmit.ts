@@ -40,9 +40,10 @@ const handleSubmitHelper = <T>(
           console.log("Form data submitted:", data);
           toast({
             title: "Success",
-            description: task === "model" 
-              ? "Model training started successfully" 
-              : "Dataset uploaded successfully",
+            description:
+              task === "model"
+                ? "Model training started successfully"
+                : "Dataset uploaded successfully",
           });
           resetForm();
         }
