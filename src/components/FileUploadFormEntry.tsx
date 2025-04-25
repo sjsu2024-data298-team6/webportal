@@ -24,7 +24,8 @@ const FileUploadFormEntry: React.FC<FileUploadFormEntryProps> = ({
           alert(`ERROR! ${error.message}`);
         }}
         appearance={{
-          button: "ut-ready:bg-primary ut-uploading:cursor-not-allowed rounded-r-none ut-uploading:after:bg-primary",
+          button:
+            "ut-ready:bg-primary ut-uploading:cursor-not-allowed rounded-r-none ut-uploading:after:bg-primary",
           container: "w-max flex-row rounded-md border-foreground/20 border",
           allowedContent: "hidden",
         }}

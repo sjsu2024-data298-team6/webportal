@@ -6,32 +6,32 @@ export default function Document() {
     <Html lang="en">
       <Head />
       <body className="antialiased">
-        <div className="min-h-screen flex flex-col">
-          <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="flex min-h-screen flex-col">
+          <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
             <div className="container mx-auto px-4 py-4">
               <nav className="flex items-center justify-between">
-                <Link 
-                  href="/" 
-                  className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-colors"
+                <Link
+                  href="/"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent transition-colors hover:from-blue-700 hover:to-indigo-700"
                 >
                   Obstacle Detection for Drone Flight Path
                 </Link>
                 <div className="flex gap-6">
-                  <Link 
-                    href="/model" 
-                    className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  <Link
+                    href="/model"
+                    className="text-sm font-medium text-gray-600 transition-colors hover:text-blue-600"
                   >
                     Train Model
                   </Link>
-                  <Link 
-                    href="/dataset" 
-                    className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  <Link
+                    href="/dataset"
+                    className="text-sm font-medium text-gray-600 transition-colors hover:text-blue-600"
                   >
                     Upload Dataset
                   </Link>
-                  <Link 
-                    href="/inference" 
-                    className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  <Link
+                    href="/inference"
+                    className="text-sm font-medium text-gray-600 transition-colors hover:text-blue-600"
                   >
                     Inference
                   </Link>

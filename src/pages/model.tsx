@@ -14,4 +14,4 @@ export default function ModelPage() {
       </Card>
     </div>
   );
-} 
+}

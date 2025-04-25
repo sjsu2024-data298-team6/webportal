@@ -14,17 +14,17 @@ export default async function handler(
           datasetType: {
             modelBaseTypes: {
               some: {
-                value: model as string
-              }
-            }
-          }
+                value: model as string,
+              },
+            },
+          },
         },
         select: {
           id: true,
           s3Key: true,
           links: true,
-          tags: true
-        }
+          tags: true,
+        },
       });
 
       // Log the results for debugging
