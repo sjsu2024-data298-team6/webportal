@@ -2,7 +2,7 @@ import DropdownFormEntry from "@/components/DropdownFormEntry";
 import TextFormEntry from "@/components/TextFormEntry";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { FormPart } from "./FormPart";
+import { FormPart } from "@/components/FormPart";
 import handleSubmitHelper from "@/utils/formSubmit";
 import { Button } from "@/components/ui/button";
 
