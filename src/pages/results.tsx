@@ -15,6 +15,8 @@ import {
   faSortUp,
   faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
+import { Button } from "@/components/ui/button";
+import ModelResultGraphs from "@/components/ModelResultGraphs";
 
 interface modelResultType {
   datasetId: number;
@@ -31,11 +33,13 @@ interface modelResultType {
   modelTypeId: number;
   tags: string[];
   tfjsS3Key: string;
+  modelName: string;
 }
 
 export default function DatasetPage() {
   const [results, setResults] = useState<modelResultType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showGraphs, setShowGraphs] = useState<boolean>(false);
   const [sortColumn, setSortColumn] = useState<{ col: string; asc: boolean }>({
     col: "id",
     asc: true,
@@ -58,6 +62,7 @@ export default function DatasetPage() {
       col: key,
       asc: key === prev.col ? !prev.asc : true,
     }));
+    setShowGraphs(false);
   };
 
   const sortedResults = useMemo(() => {
@@ -98,6 +103,17 @@ export default function DatasetPage() {
     );
   }
 
+  function handleIsActiveCheckbox(id: number) {
+    const updatedResults = results.map((r) => {
+      if (r.id === id) {
+        return { ...r, isActive: !r.isActive };
+      }
+      return r;
+    });
+    setResults(updatedResults);
+    setShowGraphs(false);
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card>
@@ -116,6 +132,7 @@ export default function DatasetPage() {
                 <TableHead>IoU Score {sortIcon("iouScore")}</TableHead>
                 <TableHead>mAP 50 {sortIcon("map50Score")}</TableHead>
                 <TableHead>mAP 50-95 {sortIcon("map5095Score")}</TableHead>
+                <TableHead className="w-8"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -151,12 +168,54 @@ export default function DatasetPage() {
                       {r.map5095Score.toFixed(3)}
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      name={`result-${r.id}`}
+                      className="h-3 w-3"
+                      checked={r.isActive}
+                      onChange={() => handleIsActiveCheckbox(r.id)}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          {showGraphs ? (
+            <Button
+              variant={"destructive"}
+              className="my-2"
+              onClick={() => {
+                setShowGraphs(false);
+              }}
+            >
+              Hide Graphs
+            </Button>
+          ) : (
+            <Button
+              variant={"default"}
+              className="my-2"
+              onClick={() => {
+                setShowGraphs(true);
+              }}
+            >
+              View Graphs
+            </Button>
+          )}
         </CardContent>
       </Card>
+      {showGraphs && (
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Result Graphs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ModelResultGraphs
+              modelData={sortedResults.filter((r) => r.isActive)}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
