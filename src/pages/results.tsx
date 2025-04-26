@@ -17,6 +17,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import ModelResultGraphs from "@/components/ModelResultGraphs";
+import ModelResultDialog from "@/components/ModelResultDialog";
 
 interface modelResultType {
   datasetId: number;
@@ -134,6 +135,7 @@ export default function DatasetPage() {
                 {renderTableHeadSortable("map50Score", "mAP 50")}
                 {renderTableHeadSortable("map5095Score", "mAP 50-95")}
                 <TableHead className="w-8"></TableHead>
+                <TableHead className="w-8"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -176,6 +178,15 @@ export default function DatasetPage() {
                       className="h-3 w-3"
                       checked={r.isActive}
                       onChange={() => handleIsActiveCheckbox(r.id)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <ModelResultDialog
+                      data={
+                        results
+                          .filter((rr) => rr.id === r.id)
+                          .at(0) as modelResultType
+                      }
                     />
                   </TableCell>
                 </TableRow>
