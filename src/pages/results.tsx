@@ -73,7 +73,7 @@ export default function DatasetPage() {
     });
   }, [results, sortColumn]);
 
-  const sortIcon = (key: string) => {
+  const renderTableHeadSortable = (key: string, title: string) => {
     let icon;
     if (key === sortColumn.col) {
       icon = sortColumn.asc ? faSortUp : faSortDown;
@@ -81,12 +81,12 @@ export default function DatasetPage() {
       icon = faSort;
     }
     return (
-      <FontAwesomeIcon
+      <TableHead
         className="hover:cursor-pointer"
-        icon={icon}
-        size="sm"
         onClick={() => sortResultsBy(key)}
-      />
+      >
+        {title} <FontAwesomeIcon icon={icon} size="sm" />
+      </TableHead>
     );
   };
 
@@ -124,14 +124,15 @@ export default function DatasetPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID {sortIcon("id")}</TableHead>
+                {renderTableHeadSortable("id", "ID")}
                 <TableHead>Tags</TableHead>
-                <TableHead>
-                  Inference Time {sortIcon("inferenceTime")}
-                </TableHead>
-                <TableHead>IoU Score {sortIcon("iouScore")}</TableHead>
-                <TableHead>mAP 50 {sortIcon("map50Score")}</TableHead>
-                <TableHead>mAP 50-95 {sortIcon("map5095Score")}</TableHead>
+                {renderTableHeadSortable(
+                  "inferenceTime",
+                  "Inference Time (ms)",
+                )}
+                {renderTableHeadSortable("iouScore", "IoU Score")}
+                {renderTableHeadSortable("map50Score", "mAP 50")}
+                {renderTableHeadSortable("map5095Score", "mAP 50-95")}
                 <TableHead className="w-8"></TableHead>
               </TableRow>
             </TableHeader>
