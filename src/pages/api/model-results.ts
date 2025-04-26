@@ -18,7 +18,7 @@ export default async function handler(
 
       //TODO: Update backend code to actually include the model name as a column
       const resultsWithName = results.map((r) => {
-        return { ...r, modelName: r.id };
+        return { ...r, modelName: `Model ID:${r.id}` };
       });
       res.status(200).json(resultsWithName);
     } catch (error) {

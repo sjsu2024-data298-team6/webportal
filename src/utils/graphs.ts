@@ -8,10 +8,6 @@ export interface ModelData {
   inferenceTime: number;
 }
 
-const modelNameHelper = (name: string): string => {
-  return `Model ID:${name}`;
-};
-
 export const createIoUPerModelGraph = (
   data: ModelData[],
 ): { data: Data[]; layout: Partial<Layout> } => {
@@ -19,7 +15,7 @@ export const createIoUPerModelGraph = (
   const iouScores = data.map((d) => d.iouScore);
 
   const trace: Data = {
-    x: models.map(modelNameHelper),
+    x: models,
     y: iouScores,
     type: "bar",
     marker: {
@@ -53,7 +49,7 @@ export const createMapPerModelGraph = (
   const map5095Scores = data.map((d) => d.map5095Score);
 
   const trace1: Data = {
-    x: models.map(modelNameHelper),
+    x: models,
     y: map50Scores,
     name: "mAP50",
     type: "bar",
@@ -67,7 +63,7 @@ export const createMapPerModelGraph = (
   };
 
   const trace2: Data = {
-    x: models.map(modelNameHelper),
+    x: models,
     y: map5095Scores,
     name: "mAP50-95",
     type: "bar",
@@ -102,7 +98,7 @@ export const createInferenceTimePerModelGraph = (
   const inferenceTimes = data.map((d) => d.inferenceTime);
 
   const trace: Data = {
-    x: models.map(modelNameHelper),
+    x: models,
     y: inferenceTimes,
     type: "bar",
     marker: {
@@ -131,11 +127,7 @@ export const createInferenceTimePerModelGraph = (
 export const createInferenceTimeVsIoUGraph = (
   data: ModelData[],
 ): { data: Data[]; layout: Partial<Layout> } => {
-  const data_ = data.map((d) => ({
-    ...d,
-    modelName: modelNameHelper(d.modelName),
-  }));
-  const traces: Data[] = data_.map((d, index) => ({
+  const traces: Data[] = data.map((d, index) => ({
     x: [d.inferenceTime],
     y: [d.iouScore],
     mode: "markers",
