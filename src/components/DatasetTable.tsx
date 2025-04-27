@@ -16,6 +16,7 @@ interface Dataset {
   id: number;
   tags: string[];
   links: string[];
+  name: string;
 }
 
 interface DatasetTableProps {
@@ -97,6 +98,7 @@ export default function DatasetTable({
             <TableRow>
               <TableHead className="w-8"></TableHead>
               <TableHead>ID</TableHead>
+              <TableHead>Name</TableHead>
               <TableHead>Tags</TableHead>
               <TableHead>Original Source datasets</TableHead>
             </TableRow>
@@ -115,6 +117,7 @@ export default function DatasetTable({
                   />
                 </TableCell>
                 <TableCell>{dataset.id}</TableCell>
+                <TableCell>{dataset.name}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {dataset.tags.map((tag, index) => (
@@ -151,4 +154,3 @@ export default function DatasetTable({
     </div>
   );
 }
-
