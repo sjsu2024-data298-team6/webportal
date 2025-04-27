@@ -72,6 +72,12 @@ interface FormData {
   tags: string[];
 }
 
+interface ModelData {
+  value: string;
+  name: string;
+  yamlFile: string;
+}
+
 export default function ModelForm() {
   const [formData, setFormData] = useState<FormData>({
     params: "",
@@ -85,7 +91,8 @@ export default function ModelForm() {
     {},
   );
 
-  const [modelTypesList, setModelTypesList] = useState([]);
+  const [modelTypesList, setModelTypesList] = useState<ModelData[]>([]);
+  const [model, setModel] = useState<ModelData | undefined>(undefined);
 
   useEffect(() => {
     const fetchDatasetLinks = async () => {
@@ -107,14 +114,12 @@ export default function ModelForm() {
       [key]: value,
     }));
 
-    if (
-      value !== "custom_yolo" &&
-      value !== "custom_rtdetr" &&
-      key === "model"
-    ) {
+    if (key === "model") {
+      const modelData = modelTypesList.filter((m) => m.value === value).at(0);
+      setModel(modelData);
       setFormData((prev) => ({
         ...prev,
-        ["yaml_utkey"]: undefined,
+        ["yaml_utkey"]: modelData?.yamlFile,
         ["tags"]: [],
         ["datasetId"]: undefined,
       }));
@@ -156,8 +161,9 @@ export default function ModelForm() {
   const loadDevInputs = () => {
     setFormData({
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
-      model: "yolo",
-      yaml_utkey: undefined,
+      model: "yolov11_base",
+      yaml_utkey:
+        "https://raw.githubusercontent.com/sjsu2024-data298-team6/ultralytics/refs/heads/main/ultralytics/cfg/models/11/yolo11.yaml",
       datasetId: 1,
       tags: ["test"],
     });
@@ -210,8 +216,7 @@ export default function ModelForm() {
         />
         {errors.tags && <span className="text-red-500">{errors.tags}</span>}
 
-        {(formData.model === "custom_yolo" ||
-          formData.model === "custom_rtdetr") && (
+        {model && !model?.yamlFile && (
           <FileUploadFormEntry
             heading="YAML model config file"
             formkey="yamlfile"
