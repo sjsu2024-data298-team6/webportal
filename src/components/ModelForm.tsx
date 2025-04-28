@@ -161,9 +161,9 @@ export default function ModelForm() {
   const loadDevInputs = () => {
     setFormData({
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
-      model: "yolov11_base",
+      model: "yolov8_base",
       yaml_utkey:
-        "https://raw.githubusercontent.com/sjsu2024-data298-team6/ultralytics/refs/heads/main/ultralytics/cfg/models/11/yolo11.yaml",
+        "https://raw.githubusercontent.com/sjsu2024-data298-team6/ultralytics/9d0c4cadcce475aa5e143373a357a8da00729367/ultralytics/cfg/models/v8/yolov8.yaml",
       datasetId: 1,
       tags: ["test"],
     });
