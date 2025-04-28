@@ -5,9 +5,9 @@ import { z } from "zod";
 import { FormPart } from "@/components/FormPart";
 import handleSubmitHelper from "@/utils/formSubmit";
 import { Button } from "@/components/ui/button";
-import CheckboxFormEntry from "./CheckboxFormEntry";
-import DatasetTable from "./DatasetTable";
-import TagsFormEntry from "./TagsFormEntry";
+import CheckboxFormEntry from "@/components/CheckboxFormEntry";
+import DatasetTable from "@/components/DatasetTable";
+import TagsFormEntry from "@/components/TagsFormEntry";
 
 const FormSchema = z
   .object({
