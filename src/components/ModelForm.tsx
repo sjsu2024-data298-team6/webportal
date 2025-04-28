@@ -155,6 +155,7 @@ export default function ModelForm() {
       datasetId: undefined,
     });
     setErrors({});
+    setModel(undefined);
     setTagsReset(tagsReset + 1);
   };
 
