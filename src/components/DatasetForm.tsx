@@ -7,6 +7,7 @@ import handleSubmitHelper from "@/utils/formSubmit";
 import { Button } from "@/components/ui/button";
 import CheckboxFormEntry from "./CheckboxFormEntry";
 import DatasetTable from "./DatasetTable";
+import TagsFormEntry from "./TagsFormEntry";
 
 const FormSchema = z
   .object({
@@ -15,6 +16,14 @@ const FormSchema = z
     datasetType: z.string().nonempty("Dataset type is required"),
     shouldCombine: z.boolean(),
     combineID: z.number().optional(),
+    tags: z
+      .string()
+      .regex(
+        /^[\w-]+$/,
+        "Can only contain alphanumeric, underscore, and dashes",
+      )
+      .array()
+      .optional(),
   })
   .superRefine((data, ctx) => {
     if (data.shouldCombine && data.combineID === undefined) {
@@ -33,6 +42,7 @@ interface FormData {
   names?: string;
   shouldCombine: boolean;
   combineID?: number;
+  tags: string[];
 }
 
 interface DatasetLink {
@@ -49,11 +59,14 @@ export default function DatasetForm() {
     names: "",
     shouldCombine: false,
     combineID: undefined,
+    tags: [],
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
     {},
   );
+
+  const [tagsReset, setTagsReset] = useState<number>(0);
 
   const [dslinks, setDslinks] = useState<DatasetLink[]>([]);
 
@@ -70,7 +83,7 @@ export default function DatasetForm() {
 
   const handleChange = (
     key: keyof FormData,
-    value: string | number | boolean,
+    value: string | string[] | number | boolean,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -131,8 +144,10 @@ export default function DatasetForm() {
       names: "",
       shouldCombine: false,
       combineID: undefined,
+      tags: [],
     });
     setErrors({});
+    setTagsReset(tagsReset + 1);
   };
 
   const loadDevInputs = () => {
@@ -144,6 +159,7 @@ export default function DatasetForm() {
       datasetType: "visdrone",
       shouldCombine: true,
       combineID: 1,
+      tags: ["visdrone"],
     });
     setErrors({});
   };
@@ -205,6 +221,16 @@ export default function DatasetForm() {
         {errors.combineID && (
           <span className="text-red-500">{errors.combineID}</span>
         )}
+
+        <TagsFormEntry
+          placeholder=""
+          heading="Tags"
+          formkey="tags"
+          onTagsChange={(value) => handleChange("tags", value)}
+          reset={tagsReset}
+          initialTags={formData.tags}
+        />
+        {errors.tags && <span className="text-red-500">{errors.tags}</span>}
       </FormPart>
 
       <div className="flex gap-4">
