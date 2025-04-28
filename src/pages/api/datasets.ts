@@ -14,6 +14,7 @@ export default async function handler(
         select: {
           value: true,
           name: true,
+          extras: true,
         },
       });
       res.status(200).json(datasetLinks);

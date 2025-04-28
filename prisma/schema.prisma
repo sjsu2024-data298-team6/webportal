@@ -17,6 +17,7 @@ model DatasetLinkType {
   id Int @id @default(autoincrement())
   value String
   name String
+  extras String[] @default([])
   isActive Boolean @default(true)
 }
 
