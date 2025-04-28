@@ -35,6 +35,7 @@ model ModelBaseType {
   name String
   datasetType DatasetBaseType @relation(fields: [datasetTypeId], references: [id])
   datasetTypeId Int
+  yamlFile String?
   isActive Boolean @default(true)
   modelResults ModelResults[]
 }
@@ -46,6 +47,7 @@ model Dataset {
   s3Key String
   links String[]
   tags String[]
+  name String @default("")
   modelResults ModelResults[]
 }
 
