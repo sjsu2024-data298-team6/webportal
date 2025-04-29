@@ -39,7 +39,6 @@ interface FormData {
   name: string;
   url: string;
   datasetType: string;
-  names?: string;
   shouldCombine: boolean;
   combineID?: number;
   tags: string[];
@@ -56,7 +55,6 @@ export default function DatasetForm() {
     name: "",
     url: "",
     datasetType: "",
-    names: "",
     shouldCombine: false,
     combineID: undefined,
     tags: [],
@@ -90,25 +88,6 @@ export default function DatasetForm() {
       [key]: value,
     }));
 
-    if (key === "datasetType") {
-      const dslinkData = dslinks.filter((m) => m.value === value).at(0);
-
-      //TODO: Incorporate this into the backend in the future.
-      //      This assumes that visdrone will always have the same class names, which is very likely.
-      if (dslinkData?.value === "visdrone") {
-        setFormData((prev) => ({
-          ...prev,
-          ["names"]:
-            "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          ["names"]: "",
-        }));
-      }
-    }
-
     try {
       const schema = FormSchema;
       const result = schema.safeParse({ ...formData, [key]: value });
@@ -141,7 +120,6 @@ export default function DatasetForm() {
       name: "",
       url: "",
       datasetType: "",
-      names: "",
       shouldCombine: false,
       combineID: undefined,
       tags: [],
@@ -154,8 +132,6 @@ export default function DatasetForm() {
     setFormData({
       name: "VisDrone Dataset",
       url: "https://github.com/ultralytics/assets/releases/download/v0.0.0/VisDrone2019-DET-test-dev.zip",
-      names:
-        "pedestrian,people,bicycle,car,van,truck,tricycle,awning-tricycle,bus,motor",
       datasetType: "visdrone",
       shouldCombine: true,
       combineID: 1,
