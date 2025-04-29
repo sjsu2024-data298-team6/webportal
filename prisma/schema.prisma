@@ -45,6 +45,7 @@ model Dataset {
   datasetType DatasetBaseType @relation(fields: [datasetTypeId], references: [id])
   datasetTypeId Int
   s3Key String
+  checksumBlobS3Key String @default("")
   links String[]
   tags String[]
   name String @default("")
