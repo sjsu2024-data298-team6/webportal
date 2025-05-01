@@ -34,7 +34,7 @@ interface modelResultType {
   modelTypeId: number;
   tags: string[];
   tfjsS3Key: string;
-  modelName: string;
+  modelType: { name: string };
 }
 
 export default function DatasetPage() {
@@ -126,6 +126,7 @@ export default function DatasetPage() {
             <TableHeader>
               <TableRow>
                 {renderTableHeadSortable("id", "ID")}
+                <TableHead>Name</TableHead>
                 <TableHead>Tags</TableHead>
                 {renderTableHeadSortable(
                   "inferenceTime",
@@ -142,6 +143,7 @@ export default function DatasetPage() {
               {sortedResults.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>{r.id}</TableCell>
+                  <TableCell>{r.modelType.name}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {r.tags.map((tag, index) => (
