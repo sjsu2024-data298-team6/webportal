@@ -24,6 +24,7 @@ export default async function handler(
           s3Key: true,
           links: true,
           tags: true,
+          name: true,
         },
       });
 
