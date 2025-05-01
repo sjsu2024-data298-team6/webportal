@@ -6,7 +6,7 @@ export default function DatasetPage() {
     <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Upload New Dataset</CardTitle>
+          <CardTitle>Upload/Update Dataset</CardTitle>
         </CardHeader>
         <CardContent>
           <DatasetForm />
