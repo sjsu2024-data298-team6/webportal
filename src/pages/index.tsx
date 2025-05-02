@@ -21,7 +21,7 @@ export default function Home() {
       </div>
 
       {/* Feature Cards Section */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         <Link href="/model">
           <Card className="transition-colors hover:bg-accent">
             <CardHeader>
@@ -54,6 +54,17 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p>Test your trained models with new data</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/results">
+          <Card className="transition-colors hover:bg-accent">
+            <CardHeader>
+              <CardTitle>Results</CardTitle>
+              <CardDescription>View results and graphs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>View comparative graphs and detailed model runs</p>
             </CardContent>
           </Card>
         </Link>

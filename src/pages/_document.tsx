@@ -35,6 +35,12 @@ export default function Document() {
                   >
                     Inference
                   </Link>
+                  <Link
+                    href="/results"
+                    className="text-sm font-medium text-gray-600 transition-colors hover:text-blue-600"
+                  >
+                    Results
+                  </Link>
                 </div>
               </nav>
             </div>
