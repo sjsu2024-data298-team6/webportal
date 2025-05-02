@@ -135,14 +135,6 @@ const ModelResultDialog: React.FC<modelResultDialogProps> = ({ data }) => {
               {renderS3LinkIcon(data.modelS3Key)}
             </div>
           </div>
-          <div className="flex w-full flex-row">
-            <div className="w-1/2 justify-start">
-              Trained model weights (tfjs format)
-            </div>
-            <div className="w-1/2 justify-end text-right">
-              {renderS3LinkIcon(data.tfjsS3Key)}
-            </div>
-          </div>
         </div>
         <div className="my-2">
           <span className="w-full font-bold">Model training params</span>
