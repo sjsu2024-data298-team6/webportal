@@ -126,6 +126,7 @@ export default function DatasetPage() {
             <TableHeader>
               <TableRow>
                 {renderTableHeadSortable("id", "ID")}
+                <TableHead>Name</TableHead>
                 <TableHead>Tags</TableHead>
                 {renderTableHeadSortable(
                   "inferenceTime",
@@ -142,6 +143,7 @@ export default function DatasetPage() {
               {sortedResults.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>{r.id}</TableCell>
+                  <TableCell>{r.modelName}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {r.tags.map((tag, index) => (
