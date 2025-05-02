@@ -3,6 +3,7 @@ import Webcam from "react-webcam";
 import * as tf from "@tensorflow/tfjs";
 import { detectVideo, ModelInterface } from "@/utils/detect_2";
 import { Button } from "@/components/ui/button";
+import YAML from "yaml";
 
 const videoConstraints = {
   width: 720,
@@ -10,7 +11,11 @@ const videoConstraints = {
   facingMode: "user",
 };
 
-export default function InferenceForm() {
+interface InferenceFormProps {
+  modelID: number;
+}
+
+export default function InferenceForm({ modelID }: InferenceFormProps) {
   const [isCaptureEnable, setCaptureEnable] = useState(false);
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const [isInferencing, setIsInferencing] = useState(false);
@@ -20,6 +25,7 @@ export default function InferenceForm() {
   const [model, setModel] = useState<ModelInterface>({
     net: undefined,
     inputShape: undefined,
+    lables: undefined,
   }); // State to store the model
 
   useEffect(() => {
@@ -31,21 +37,36 @@ export default function InferenceForm() {
 
   useEffect(() => {
     tf.ready().then(async () => {
-      const yolov8 = await tf.loadGraphModel("/yolov8n_web_model/model.json"); // load model
+      const tfjsResponse = await fetch(`/api/inference/${modelID}`);
+      const tfjsData = (await tfjsResponse.json()) as { tfjsS3Key: string };
+
+      const modelMetadataYamlResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${tfjsData.tfjsS3Key}/metadata.yaml`,
+      );
+      const modelMetadataYamlText = await modelMetadataYamlResponse.text();
+
+      const modelMetadataYaml = YAML.parse(modelMetadataYamlText);
+
+      const labels = Object.values(modelMetadataYaml.names);
+
+      const modelWeights = await tf.loadGraphModel(
+        `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${tfjsData.tfjsS3Key}/model.json`,
+      ); // load model
       setIsLoadingModel(false);
 
       // warming up model
-      const dummyInput = tf.ones(yolov8.inputs[0].shape!);
-      const warmupResults = yolov8.execute(dummyInput);
+      const dummyInput = tf.ones(modelWeights.inputs[0].shape!);
+      const warmupResults = modelWeights.execute(dummyInput);
 
       setModel({
-        net: yolov8,
-        inputShape: yolov8.inputs[0].shape,
+        net: modelWeights,
+        inputShape: modelWeights.inputs[0].shape,
+        lables: labels as string[],
       }); // set model & input shape
 
       tf.dispose([warmupResults, dummyInput]); // cleanup memory
     });
-  }, []);
+  }, [modelID]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -61,7 +82,9 @@ export default function InferenceForm() {
     <div className="w-full">
       {isCaptureEnable ||
         (isLoadingModel ? (
-          <Button variant={"secondary"}>Loading...</Button>
+          <Button variant={"secondary"} disabled>
+            Loading...
+          </Button>
         ) : (
           <Button variant={"default"} onClick={() => setCaptureEnable(true)}>
             Open Webcam

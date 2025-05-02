@@ -1,10 +1,9 @@
-import labels from "./labels.json";
-
 export const renderBoxes = (
   canvasRef: HTMLCanvasElement,
   boxes_data: number[],
   scores_data: number[],
   classes_data: number[],
+  labels: string[],
   // ratios: [number, number],
 ) => {
   const ctx = canvasRef.getContext("2d")!;
