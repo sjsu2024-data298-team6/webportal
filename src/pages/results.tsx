@@ -18,6 +18,12 @@ import {
 import { Button } from "@/components/ui/button";
 import ModelResultGraphs from "@/components/ModelResultGraphs";
 import ModelResultDialog from "@/components/ModelResultDialog";
+import DropdownFormEntry from "@/components/DropdownFormEntry";
+
+interface datasetWithResults {
+  value: string;
+  name: string;
+}
 
 interface modelResultType {
   datasetId: number;
@@ -38,8 +44,13 @@ interface modelResultType {
 }
 
 export default function DatasetPage() {
+  const [datasets, setDatasets] = useState<datasetWithResults[]>([]);
+  const [selectedDataset, setSelectedDataset] = useState<
+    datasetWithResults | undefined
+  >(undefined);
   const [results, setResults] = useState<modelResultType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingResults, setLoadingResults] = useState<boolean>(true);
   const [showGraphs, setShowGraphs] = useState<boolean>(false);
   const [sortColumn, setSortColumn] = useState<{ col: string; asc: boolean }>({
     col: "id",
@@ -47,16 +58,33 @@ export default function DatasetPage() {
   });
 
   useEffect(() => {
-    const loadModelResults = async () => {
-      const response = await fetch("/api/model-results");
-      const data = (await response.json()) as modelResultType[];
+    const loadDatasets = async () => {
+      const response = await fetch("/api/datasets-with-results");
+      const data = (await response.json()) as datasetWithResults[];
       console.log(data);
-      setResults(data);
+      setDatasets(data);
       setLoading(false);
     };
 
-    loadModelResults();
+    loadDatasets();
   }, []);
+
+  useEffect(() => {
+    const loadModelResults = async () => {
+      if (selectedDataset) {
+        const response = await fetch(`/api/results/${selectedDataset.value}`);
+        const data = (await response.json()) as modelResultType[];
+        console.log(data);
+        setResults(data);
+        setLoadingResults(false);
+      }
+    };
+    if (selectedDataset) {
+      setShowGraphs(false);
+      setLoadingResults(true);
+      loadModelResults();
+    }
+  }, [selectedDataset]);
 
   const sortResultsBy = (key: string) => {
     setSortColumn((prev) => ({
@@ -91,19 +119,6 @@ export default function DatasetPage() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>View results</CardTitle>
-          </CardHeader>
-          <CardContent> Loading results... </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   function handleIsActiveCheckbox(id: number) {
     const updatedResults = results.map((r) => {
       if (r.id === id) {
@@ -119,105 +134,140 @@ export default function DatasetPage() {
     <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>View results</CardTitle>
+          <CardTitle> Select Dataset </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {renderTableHeadSortable("id", "ID")}
-                <TableHead>Name</TableHead>
-                <TableHead>Tags</TableHead>
-                {renderTableHeadSortable(
-                  "inferenceTime",
-                  "Inference Time (ms)",
-                )}
-                {renderTableHeadSortable("iouScore", "IoU Score")}
-                {renderTableHeadSortable("map50Score", "mAP 50")}
-                {renderTableHeadSortable("map5095Score", "mAP 50-95")}
-                <TableHead className="w-8"></TableHead>
-                <TableHead className="w-8"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedResults.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell>{r.id}</TableCell>
-                  <TableCell>{r.modelName}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {r.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap justify-end gap-1">
-                      {r.inferenceTime.toFixed(3)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap justify-end gap-1">
-                      {r.iouScore.toFixed(3)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap justify-end gap-1">
-                      {r.map50Score.toFixed(3)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap justify-end gap-1">
-                      {r.map5095Score.toFixed(3)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      name={`result-${r.id}`}
-                      className="h-3 w-3"
-                      checked={r.isActive}
-                      onChange={() => handleIsActiveCheckbox(r.id)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <ModelResultDialog
-                      data={
-                        results
-                          .filter((rr) => rr.id === r.id)
-                          .at(0) as modelResultType
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {showGraphs ? (
-            <Button
-              variant={"destructive"}
-              className="my-2"
-              onClick={() => {
-                setShowGraphs(false);
+          {!loading ? (
+            <DropdownFormEntry
+              heading="Select dataset"
+              formkey="dataset"
+              options={datasets}
+              value={selectedDataset ? selectedDataset.value : ""}
+              onChange={(value) => {
+                const sds = datasets
+                  .filter((ds) => {
+                    return ds.value === value;
+                  })
+                  .at(0);
+                setSelectedDataset(sds);
               }}
-            >
-              Hide Graphs
-            </Button>
+            />
           ) : (
-            <Button
-              variant={"default"}
-              className="my-2"
-              onClick={() => {
-                setShowGraphs(true);
-              }}
-            >
-              View Graphs
-            </Button>
+            "loading datasets..."
           )}
         </CardContent>
       </Card>
+      {loadingResults && selectedDataset && (
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>View results</CardTitle>
+          </CardHeader>
+          <CardContent>Loading results...</CardContent>
+        </Card>
+      )}
+      {!loadingResults && (
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>View results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {renderTableHeadSortable("id", "ID")}
+                  <TableHead>Name</TableHead>
+                  <TableHead>Tags</TableHead>
+                  {renderTableHeadSortable(
+                    "inferenceTime",
+                    "Inference Time (ms)",
+                  )}
+                  {renderTableHeadSortable("iouScore", "IoU Score")}
+                  {renderTableHeadSortable("map50Score", "mAP 50")}
+                  {renderTableHeadSortable("map5095Score", "mAP 50-95")}
+                  <TableHead className="w-8"></TableHead>
+                  <TableHead className="w-8"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedResults.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell>{r.id}</TableCell>
+                    <TableCell>{r.modelName}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {r.tags.map((tag, index) => (
+                          <Badge key={index} variant="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap justify-end gap-1">
+                        {r.inferenceTime.toFixed(3)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap justify-end gap-1">
+                        {r.iouScore.toFixed(3)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap justify-end gap-1">
+                        {r.map50Score.toFixed(3)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap justify-end gap-1">
+                        {r.map5095Score.toFixed(3)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        name={`result-${r.id}`}
+                        className="h-3 w-3"
+                        checked={r.isActive}
+                        onChange={() => handleIsActiveCheckbox(r.id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <ModelResultDialog
+                        data={
+                          results
+                            .filter((rr) => rr.id === r.id)
+                            .at(0) as modelResultType
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {showGraphs ? (
+              <Button
+                variant={"destructive"}
+                className="my-2"
+                onClick={() => {
+                  setShowGraphs(false);
+                }}
+              >
+                Hide Graphs
+              </Button>
+            ) : (
+              <Button
+                variant={"default"}
+                className="my-2"
+                onClick={() => {
+                  setShowGraphs(true);
+                }}
+              >
+                View Graphs
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
       {showGraphs && (
         <Card className="mt-4">
           <CardHeader>
