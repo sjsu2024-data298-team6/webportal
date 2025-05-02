@@ -1,13 +1,11 @@
 import * as tf from "@tensorflow/tfjs";
 import { renderBoxes } from "./renderBoxes";
-import labels from "./labels.json";
 
 export interface ModelInterface {
   net: tf.GraphModel | undefined;
   inputShape: number[] | undefined;
+  lables: string[] | undefined;
 }
-
-const numClass = labels.length; //TODO: use loaded model from AWS in the future
 
 const preprocess = (
   source: HTMLVideoElement | HTMLImageElement,
@@ -64,9 +62,15 @@ export const detect = async (
   canvasRef: HTMLCanvasElement,
   callback: VoidFunction = () => {},
 ) => {
-  if (model.net === undefined || model.inputShape === undefined) {
+  if (
+    model.net === undefined ||
+    model.inputShape === undefined ||
+    model.lables === undefined
+  ) {
     throw new Error("Model is not defined properly!");
   }
+
+  const numClass = model.lables.length;
 
   const inputShape = model.inputShape; // Model's first input shape
   const [modelWidth, modelHeight] = inputShape.slice(1, 3); // get model width and height
@@ -136,6 +140,7 @@ export const detect = async (
     adjustedBoxes,
     scores_data,
     classes_data,
+    model.lables,
     // [ origWidth, origHeight ],
   ); // render boxes
   tf.dispose([res, transRes, boxes, scores, classes, nms]); // clear memory
