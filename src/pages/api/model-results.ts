@@ -14,16 +14,13 @@ export default async function handler(
         orderBy: {
           id: "asc",
         },
-        include: {
-          modelType: {
-            select: {
-              name: true,
-            },
-          },
-        },
       });
 
-      res.status(200).json(results);
+      //TODO: Update backend code to actually include the model name as a column
+      const resultsWithName = results.map((r) => {
+        return { ...r, modelName: `Model ID:${r.id}` };
+      });
+      res.status(200).json(resultsWithName);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Failed to fetch posts" });

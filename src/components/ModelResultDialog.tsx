@@ -30,7 +30,7 @@ interface modelResultType {
   modelTypeId: number;
   tags: string[];
   tfjsS3Key: string;
-  modelType: { name: string };
+  modelName: string;
 }
 
 interface modelResultDialogProps {
@@ -81,7 +81,7 @@ const ModelResultDialog: React.FC<modelResultDialogProps> = ({ data }) => {
       </DialogTrigger>
       <DialogContent className="max-w-screen-md">
         <DialogHeader>
-          <DialogTitle>{data.modelType.name}</DialogTitle>
+          <DialogTitle>{data.modelName}</DialogTitle>
           <DialogDescription asChild>
             <div className="flex flex-wrap gap-1">
               {data.tags.map((tag, index) => (

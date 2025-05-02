@@ -1,7 +1,7 @@
 import { Data, Layout } from "plotly.js";
 
 export interface ModelData {
-  modelType: { name: string };
+  modelName: string;
   iouScore: number;
   map50Score: number;
   map5095Score: number;
@@ -11,7 +11,7 @@ export interface ModelData {
 export const createIoUPerModelGraph = (
   data: ModelData[],
 ): { data: Data[]; layout: Partial<Layout> } => {
-  const models = data.map((d) => d.modelType.name);
+  const models = data.map((d) => d.modelName);
   const iouScores = data.map((d) => d.iouScore);
 
   const trace: Data = {
@@ -44,7 +44,7 @@ export const createIoUPerModelGraph = (
 export const createMapPerModelGraph = (
   data: ModelData[],
 ): { data: Data[]; layout: Partial<Layout> } => {
-  const models = data.map((d) => d.modelType.name);
+  const models = data.map((d) => d.modelName);
   const map50Scores = data.map((d) => d.map50Score);
   const map5095Scores = data.map((d) => d.map5095Score);
 
@@ -94,7 +94,7 @@ export const createMapPerModelGraph = (
 export const createInferenceTimePerModelGraph = (
   data: ModelData[],
 ): { data: Data[]; layout: Partial<Layout> } => {
-  const models = data.map((d) => d.modelType.name);
+  const models = data.map((d) => d.modelName);
   const inferenceTimes = data.map((d) => d.inferenceTime);
 
   const trace: Data = {
@@ -132,7 +132,7 @@ export const createInferenceTimeVsIoUGraph = (
     y: [d.iouScore],
     mode: "markers",
     type: "scatter",
-    name: d.modelType.name,
+    name: d.modelName,
     marker: {
       size: 10,
       color: `hsl(${(index * 137.5) % 360}, 70%, 50%)`, // Use HSL color scheme
