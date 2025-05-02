@@ -59,6 +59,7 @@ model ModelResults {
   datasetId Int
   modelType ModelBaseType @relation(fields: [modelTypeId], references: [id])
   modelTypeId Int
+  modelName String @default("")
   params Json
   extras Json @ default("{}")
   iouScore Float?

@@ -55,6 +55,7 @@ const FormSchema = z.object({
       }
     }, "Something went wrong during validation"),
   model: z.string().nonempty("Model type is required"),
+  modelName: z.string().nonempty("Model name is required"),
   datasetId: z.number(),
   tags: z
     .string()
@@ -67,6 +68,7 @@ const FormSchema = z.object({
 interface FormData {
   params: string;
   model: string;
+  modelName: string;
   datasetId?: number;
   yaml_utkey?: string;
   tags: string[];
@@ -82,6 +84,7 @@ export default function ModelForm() {
   const [formData, setFormData] = useState<FormData>({
     params: "",
     model: "",
+    modelName: "",
     tags: [],
   });
 
@@ -120,6 +123,11 @@ export default function ModelForm() {
       setFormData((prev) => ({
         ...prev,
         ["yaml_utkey"]: modelData?.yamlFile,
+        ["modelName"]: modelData
+          ? modelData.yamlFile
+            ? modelData.name
+            : ""
+          : "",
         ["tags"]: [],
         ["datasetId"]: undefined,
       }));
@@ -150,6 +158,7 @@ export default function ModelForm() {
     setFormData({
       params: "",
       model: "",
+      modelName: "",
       yaml_utkey: undefined,
       tags: [],
       datasetId: undefined,
@@ -163,6 +172,7 @@ export default function ModelForm() {
     setFormData({
       params: '{"epochs": 10, "imgsz": 640, "batch": 8}',
       model: "yolov8_base",
+      modelName: "YOLOv8 Base Testing Model",
       yaml_utkey:
         "https://raw.githubusercontent.com/sjsu2024-data298-team6/ultralytics/9d0c4cadcce475aa5e143373a357a8da00729367/ultralytics/cfg/models/v8/yolov8.yaml",
       datasetId: 1,
@@ -185,6 +195,18 @@ export default function ModelForm() {
           onChange={(value) => handleChange("model", value)}
         />
         {errors.model && <span className="text-red-500">{errors.model}</span>}
+
+        <TextFormEntry
+          heading="Model Name"
+          formkey="modelName"
+          placeholder="required"
+          type="text"
+          value={formData.modelName}
+          onChange={(value) => handleChange("modelName", value)}
+        />
+        {errors.modelName && (
+          <span className="text-red-500">{errors.modelName}</span>
+        )}
 
         {formData.model && (
           <DatasetTable
