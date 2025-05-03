@@ -16,7 +16,8 @@ interface InferenceFormProps {
 }
 
 export default function InferenceForm({ modelID }: InferenceFormProps) {
-  const [isCaptureEnable, setCaptureEnable] = useState(false);
+  const [isWebCamCaptureEnable, setWebCamCaptureEnable] = useState(false);
+  const [isLiveCaptureEnable, setLiveCaptureEnable] = useState(false);
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const [isInferencing, setIsInferencing] = useState(false);
   const webcamRef = useRef<Webcam>(null);
@@ -80,23 +81,106 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
 
   return (
     <div className="w-full">
-      {isCaptureEnable ||
+      {isWebCamCaptureEnable ||
+        isLiveCaptureEnable ||
         (isLoadingModel ? (
           <Button variant={"secondary"} disabled>
             Loading...
           </Button>
         ) : (
-          <Button variant={"default"} onClick={() => setCaptureEnable(true)}>
-            Open Webcam
-          </Button>
+          <div className="flex flex-row gap-4">
+            <Button
+              variant={"default"}
+              onClick={() => setWebCamCaptureEnable(true)}
+            >
+              Open Webcam
+            </Button>
+            <Button
+              variant={"default"}
+              onClick={() => setLiveCaptureEnable(true)}
+            >
+              Open Livestream
+            </Button>
+          </div>
         ))}
-      {isCaptureEnable && (
+      {isLiveCaptureEnable && (
         <>
           <div>
             <Button
               variant={"destructive"}
               onClick={() => {
-                setCaptureEnable(false);
+                setLiveCaptureEnable(false);
+                setIsInferencing(false);
+                stopRef.current = true;
+              }}
+            >
+              Close Livestream
+            </Button>
+          </div>
+          <div>
+            <div className="relative my-4 aspect-video w-full">
+              <Webcam
+                audio={false}
+                width={720}
+                height={512}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={videoConstraints}
+                onLoadedMetadata={() => {
+                  const video = webcamRef.current?.video;
+                  const canvas = canvasRef.current;
+                  if (video && canvas) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                  }
+                }}
+                className="absolute left-0 top-0 h-full w-full object-cover"
+              />
+              <canvas
+                ref={canvasRef}
+                className="pointer-events-none absolute left-0 top-0 z-50 h-full w-full"
+              />
+            </div>
+            {!isInferencing ? (
+              <Button
+                onClick={() => {
+                  stopRef.current = false;
+                  detectVideo(
+                    webcamRef.current!.video!,
+                    model,
+                    canvasRef.current!,
+                    stopRef,
+                  );
+                  setIsInferencing(true);
+                }}
+                variant={"default"}
+              >
+                Start Inference
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  let ctx = canvasRef.current!.getContext("2d")!;
+                  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                  ctx = canvasRef.current!.getContext("2d")!;
+                  setIsInferencing(false);
+                  stopRef.current = true;
+                }}
+                variant={"destructive"}
+              >
+                Stop Inference
+              </Button>
+            )}
+          </div>
+        </>
+      )}
+      {isWebCamCaptureEnable && (
+        <>
+          <div>
+            <Button
+              variant={"destructive"}
+              onClick={() => {
+                setWebCamCaptureEnable(false);
                 setIsInferencing(false);
                 stopRef.current = true;
               }}
