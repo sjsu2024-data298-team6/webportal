@@ -167,6 +167,8 @@ export const detectVideo = (
     }
 
     if (stopRef.current) {
+      const ctx = canvasRef.getContext("2d")!;
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
       return; // stop detection if stop flag is set
     }
 
