@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import {
   faSort,
   faSortUp,
@@ -25,9 +25,34 @@ interface datasetWithResults {
   name: string;
 }
 
+interface ClassMetrics {
+  name: string;
+  precision: number;
+  recall: number;
+  map50: number;
+  map5095: number;
+  iou: number;
+}
+
+interface AllMetrics {
+  precision: number;
+  recall: number;
+  map50: number;
+  map5095: number;
+  iou: number;
+  inference_time: number;
+  class_metrics: ClassMetrics[];
+}
+
+interface extraInfo {
+  YAML_URL: string;
+  wandb_logs: string;
+  detailed_metrics: AllMetrics | undefined;
+}
+
 interface modelResultType {
   datasetId: number;
-  extras: object;
+  extras: extraInfo;
   id: number;
   inferenceTime: number;
   iouScore: number;
@@ -52,6 +77,8 @@ export default function DatasetPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingResults, setLoadingResults] = useState<boolean>(true);
   const [showGraphs, setShowGraphs] = useState<boolean>(false);
+  const [selectAll, setSelectAll] = useState<boolean>(true);
+  const selectAllRef = useRef<HTMLInputElement>(null);
   const [sortColumn, setSortColumn] = useState<{ col: string; asc: boolean }>({
     col: "id",
     asc: true,
@@ -120,12 +147,34 @@ export default function DatasetPage() {
   };
 
   function handleIsActiveCheckbox(id: number) {
+    let countChecked = 0;
     const updatedResults = results.map((r) => {
       if (r.id === id) {
         return { ...r, isActive: !r.isActive };
       }
       return r;
     });
+    updatedResults.forEach((r) => {
+      if (r.isActive) {
+        countChecked += 1;
+      }
+    });
+    if (countChecked === 0) {
+      setSelectAll(false);
+      if (selectAllRef && selectAllRef.current) {
+        selectAllRef.current.indeterminate = false;
+      }
+    } else if (countChecked === updatedResults.length) {
+      setSelectAll(true);
+      if (selectAllRef && selectAllRef.current) {
+        selectAllRef.current.indeterminate = false;
+      }
+    } else {
+      setSelectAll(false);
+      if (selectAllRef && selectAllRef.current) {
+        selectAllRef.current.indeterminate = true;
+      }
+    }
     setResults(updatedResults);
     setShowGraphs(false);
   }
@@ -184,7 +233,18 @@ export default function DatasetPage() {
                   {renderTableHeadSortable("iouScore", "IoU Score")}
                   {renderTableHeadSortable("map50Score", "mAP 50")}
                   {renderTableHeadSortable("map5095Score", "mAP 50-95")}
-                  <TableHead className="w-8"></TableHead>
+                  <TableHead className="w-8">
+                    <input
+                      ref={selectAllRef}
+                      type="checkbox"
+                      className="h-3 w-3"
+                      checked={selectAll}
+                      onChange={() => {
+                        setSelectAll(!selectAll);
+                        sortedResults.forEach((r) => (r.isActive = !selectAll));
+                      }}
+                    />
+                  </TableHead>
                   <TableHead className="w-8"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -261,6 +321,7 @@ export default function DatasetPage() {
                 onClick={() => {
                   setShowGraphs(true);
                 }}
+                disabled={!sortedResults.some((r) => r.isActive)}
               >
                 View Graphs
               </Button>

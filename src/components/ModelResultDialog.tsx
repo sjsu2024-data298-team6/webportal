@@ -19,6 +19,7 @@ import {
 import {
   faArrowUpRightFromSquare,
   faDownload,
+  faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Badge } from "@/components/ui/badge";
@@ -109,7 +110,7 @@ const ModelResultDialog: React.FC<modelResultDialogProps> = ({ data }) => {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size={"icon"}>
-          <FontAwesomeIcon icon={faArrowUpRightFromSquare} size="sm" />
+          <FontAwesomeIcon icon={faInfoCircle} size="sm" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-screen-md">
