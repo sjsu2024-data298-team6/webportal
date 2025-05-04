@@ -5,6 +5,7 @@ import { detectVideo, ModelInterface } from "@/utils/detect_2";
 import { Button } from "@/components/ui/button";
 import YAML from "yaml";
 import Hls from "hls.js";
+import TextFormEntry from "@/components/TextFormEntry";
 
 const videoConstraints = {
   width: 720,
@@ -35,8 +36,10 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
     lables: undefined,
   });
 
-  const livestreamUrl = //TODO: make link selectable
-    "https://wzmedia.dot.ca.gov/D3/5_Cosumnes_River_Blvd_OC_SAC5_NB.stream/playlist.m3u8";
+  const [livestreamUrl, setLivestreamUrl] = useState(
+    "https://wzmedia.dot.ca.gov/D3/5_Cosumnes_River_Blvd_OC_SAC5_NB.stream/playlist.m3u8",
+  );
+  const [inputLivestreamUrl, setInputLivestreamUrl] = useState(livestreamUrl);
 
   useEffect(() => {
     return () => {
@@ -176,6 +179,20 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
     stopRef.current = true;
   };
 
+  const handleLivestreamUrlSubmit = () => {
+    setLivestreamUrl(inputLivestreamUrl);
+    if (isLiveCaptureEnable && livestreamVideoRef.current) {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+      setLiveCaptureEnable(false);
+      setTimeout(() => {
+        setLiveCaptureEnable(true);
+      }, 0);
+    }
+  };
+
   return (
     <div className="w-full">
       {isLoadingModel ? (
@@ -220,6 +237,15 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
             </Button>
           </div>
           <div>
+            <div className="flew-row my-4 flex items-end gap-2">
+              <TextFormEntry
+                heading="Livestream URL"
+                formkey="livestreamUrl"
+                value={inputLivestreamUrl}
+                onChange={(value) => setInputLivestreamUrl(value)}
+              />
+              <Button onClick={handleLivestreamUrlSubmit}>Submit</Button>
+            </div>
             <div className="relative my-4 aspect-video w-full">
               <video
                 ref={livestreamVideoRef}
