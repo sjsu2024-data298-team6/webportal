@@ -4,6 +4,7 @@ import * as tf from "@tensorflow/tfjs";
 import { detectVideo, ModelInterface } from "@/utils/detect_2";
 import { Button } from "@/components/ui/button";
 import YAML from "yaml";
+import Hls from "hls.js";
 
 const videoConstraints = {
   width: 720,
@@ -21,18 +22,29 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
   const [isLoadingModel, setIsLoadingModel] = useState(true);
   const [isInferencing, setIsInferencing] = useState(false);
   const webcamRef = useRef<Webcam>(null);
+  const livestreamVideoRef = useRef<HTMLVideoElement>(null);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const stopRef = useRef<boolean>(false);
+  const hlsRef = useRef<Hls | null>(null);
+
   const [model, setModel] = useState<ModelInterface>({
     net: undefined,
     inputShape: undefined,
     lables: undefined,
-  }); // State to store the model
+  });
+
+  const livestreamUrl = //TODO: make link selectable
+    "https://wzmedia.dot.ca.gov/D3/5_Cosumnes_River_Blvd_OC_SAC5_NB.stream/playlist.m3u8";
 
   useEffect(() => {
     return () => {
       stopRef.current = true;
       setIsInferencing(false);
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+      }
     };
   }, []);
 
@@ -71,38 +83,125 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const video = webcamRef.current?.video;
+    let video: HTMLVideoElement | null | undefined;
+
+    if (isWebCamCaptureEnable) {
+      video = webcamRef.current?.video;
+    } else if (isLiveCaptureEnable) {
+      video = livestreamVideoRef.current;
+    }
 
     if (canvas && video) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      const handleLoadedMetadata = () => {
+        canvas.width = video!.videoWidth;
+        canvas.height = video!.videoHeight;
+      };
+
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+      return () => {
+        video?.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      };
     }
-  }, []);
+  }, [isWebCamCaptureEnable, isLiveCaptureEnable]);
+
+  useEffect(() => {
+    const video = livestreamVideoRef.current;
+
+    if (!isLiveCaptureEnable || !video) {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+      return;
+    }
+
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+    }
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hlsRef.current = hls;
+
+      hls.loadSource(livestreamUrl);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play();
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error("HLS error:", data);
+      });
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = livestreamUrl;
+    } else {
+      console.error("HLS is not supported in this browser");
+    }
+
+    return () => {};
+  }, [isLiveCaptureEnable, livestreamUrl]);
+
+  const startInference = () => {
+    stopRef.current = false;
+    let videoElement: HTMLVideoElement | null = null;
+
+    if (isWebCamCaptureEnable && webcamRef.current?.video) {
+      videoElement = webcamRef.current.video;
+    } else if (isLiveCaptureEnable && livestreamVideoRef.current) {
+      videoElement = livestreamVideoRef.current;
+    }
+
+    if (
+      videoElement &&
+      model.net &&
+      model.inputShape &&
+      model.lables &&
+      canvasRef.current
+    ) {
+      detectVideo(videoElement, model, canvasRef.current, stopRef);
+      setIsInferencing(true);
+    } else {
+      console.error(
+        "Cannot start inference: Video element, model, or canvas is not ready.",
+      );
+    }
+  };
+
+  const stopInference = () => {
+    const ctx = canvasRef.current!.getContext("2d")!;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    setIsInferencing(false);
+    stopRef.current = true;
+  };
 
   return (
     <div className="w-full">
-      {isWebCamCaptureEnable ||
-        isLiveCaptureEnable ||
-        (isLoadingModel ? (
-          <Button variant={"secondary"} disabled>
-            Loading...
-          </Button>
-        ) : (
-          <div className="flex flex-row gap-4">
-            <Button
-              variant={"default"}
-              onClick={() => setWebCamCaptureEnable(true)}
-            >
-              Open Webcam
-            </Button>
-            <Button
-              variant={"default"}
-              onClick={() => setLiveCaptureEnable(true)}
-            >
-              Open Livestream
-            </Button>
-          </div>
-        ))}
+      {isLoadingModel ? (
+        <Button variant={"secondary"} disabled>
+          Loading...
+        </Button>
+      ) : (
+        <div className="flex flex-row gap-4">
+          {!isWebCamCaptureEnable && !isLiveCaptureEnable && (
+            <>
+              <Button
+                variant={"default"}
+                onClick={() => setWebCamCaptureEnable(true)}
+              >
+                Open Webcam
+              </Button>
+              <Button
+                variant={"default"}
+                onClick={() => setLiveCaptureEnable(true)}
+              >
+                Open Livestream
+              </Button>
+            </>
+          )}
+        </div>
+      )}
       {isLiveCaptureEnable && (
         <>
           <div>
@@ -112,6 +211,9 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
                 setLiveCaptureEnable(false);
                 setIsInferencing(false);
                 stopRef.current = true;
+                if (livestreamVideoRef.current) {
+                  livestreamVideoRef.current.pause();
+                }
               }}
             >
               Close Livestream
@@ -119,21 +221,12 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
           </div>
           <div>
             <div className="relative my-4 aspect-video w-full">
-              <Webcam
-                audio={false}
-                width={720}
-                height={512}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-                onLoadedMetadata={() => {
-                  const video = webcamRef.current?.video;
-                  const canvas = canvasRef.current;
-                  if (video && canvas) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                  }
-                }}
+              <video
+                ref={livestreamVideoRef}
+                controls={true}
+                autoPlay
+                playsInline
+                muted
                 className="absolute left-0 top-0 h-full w-full object-cover"
               />
               <canvas
@@ -142,32 +235,11 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
               />
             </div>
             {!isInferencing ? (
-              <Button
-                onClick={() => {
-                  stopRef.current = false;
-                  detectVideo(
-                    webcamRef.current!.video!,
-                    model,
-                    canvasRef.current!,
-                    stopRef,
-                  );
-                  setIsInferencing(true);
-                }}
-                variant={"default"}
-              >
+              <Button onClick={startInference} variant={"default"}>
                 Start Inference
               </Button>
             ) : (
-              <Button
-                onClick={() => {
-                  let ctx = canvasRef.current!.getContext("2d")!;
-                  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                  ctx = canvasRef.current!.getContext("2d")!;
-                  setIsInferencing(false);
-                  stopRef.current = true;
-                }}
-                variant={"destructive"}
-              >
+              <Button onClick={stopInference} variant={"destructive"}>
                 Stop Inference
               </Button>
             )}
@@ -197,14 +269,6 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
                 videoConstraints={videoConstraints}
-                onLoadedMetadata={() => {
-                  const video = webcamRef.current?.video;
-                  const canvas = canvasRef.current;
-                  if (video && canvas) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                  }
-                }}
                 className="absolute left-0 top-0 h-full w-full object-cover"
               />
               <canvas
@@ -213,32 +277,11 @@ export default function InferenceForm({ modelID }: InferenceFormProps) {
               />
             </div>
             {!isInferencing ? (
-              <Button
-                onClick={() => {
-                  stopRef.current = false;
-                  detectVideo(
-                    webcamRef.current!.video!,
-                    model,
-                    canvasRef.current!,
-                    stopRef,
-                  );
-                  setIsInferencing(true);
-                }}
-                variant={"default"}
-              >
+              <Button onClick={startInference} variant={"default"}>
                 Start Inference
               </Button>
             ) : (
-              <Button
-                onClick={() => {
-                  let ctx = canvasRef.current!.getContext("2d")!;
-                  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                  ctx = canvasRef.current!.getContext("2d")!;
-                  setIsInferencing(false);
-                  stopRef.current = true;
-                }}
-                variant={"destructive"}
-              >
+              <Button onClick={stopInference} variant={"destructive"}>
                 Stop Inference
               </Button>
             )}
