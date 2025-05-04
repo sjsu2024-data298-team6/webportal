@@ -19,9 +19,34 @@ interface datasetWithTFJS {
   name: string;
 }
 
+interface ClassMetrics {
+  name: string;
+  precision: number;
+  recall: number;
+  map50: number;
+  map5095: number;
+  iou: number;
+}
+
+interface AllMetrics {
+  precision: number;
+  recall: number;
+  map50: number;
+  map5095: number;
+  iou: number;
+  inference_time: number;
+  class_metrics: ClassMetrics[];
+}
+
+interface extraInfo {
+  YAML_URL: string;
+  wandb_logs: string;
+  detailed_metrics: AllMetrics | undefined;
+}
+
 interface modelResultType {
   datasetId: number;
-  extras: object;
+  extras: extraInfo;
   id: number;
   inferenceTime: number;
   iouScore: number;
