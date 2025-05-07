@@ -15,9 +15,10 @@ export const createIoUPerModelGraph = (
   const iouScores = data.map((d) => d.iouScore);
 
   const trace: Data = {
-    x: models,
-    y: iouScores,
+    y: models,
+    x: iouScores,
     type: "bar",
+    orientation: "h",
     marker: {
       color: "rgba(55,128,191,0.6)",
       line: {
@@ -28,14 +29,16 @@ export const createIoUPerModelGraph = (
   };
 
   const layout: Partial<Layout> = {
-    title: "IoU per Model",
+    title: {
+      text: "IoU per Model",
+    },
     xaxis: {
-      title: "Model",
-      tickangle: -90,
+      title: { text: "IoU" },
     },
-    yaxis: {
-      title: "IoU",
+    margin: {
+      l: 250,
     },
+    autosize: true,
   };
 
   return { data: [trace], layout };
@@ -49,10 +52,11 @@ export const createMapPerModelGraph = (
   const map5095Scores = data.map((d) => d.map5095Score);
 
   const trace1: Data = {
-    x: models,
-    y: map50Scores,
+    y: models,
+    x: map50Scores,
     name: "mAP50",
     type: "bar",
+    orientation: "h",
     marker: {
       color: "rgba(219,64,93,0.6)",
       line: {
@@ -63,10 +67,11 @@ export const createMapPerModelGraph = (
   };
 
   const trace2: Data = {
-    x: models,
-    y: map5095Scores,
+    y: models,
+    x: map5095Scores,
     name: "mAP50-95",
     type: "bar",
+    orientation: "h",
     marker: {
       color: "rgba(93,164,214,0.6)",
       line: {
@@ -77,18 +82,16 @@ export const createMapPerModelGraph = (
   };
 
   const layout: Partial<Layout> = {
-    title: "mAP per Model",
-    xaxis: {
-      title: "Model",
-      tickangle: -90,
-    },
-    yaxis: {
-      title: "mAP",
-    },
+    title: { text: "mAP per Model" },
+    xaxis: { title: { text: "mAP" } },
     barmode: "group",
+    margin: {
+      l: 250,
+    },
+    autosize: true,
   };
 
-  return { data: [trace1, trace2], layout };
+  return { data: [trace2, trace1], layout };
 };
 
 export const createInferenceTimePerModelGraph = (
@@ -98,9 +101,10 @@ export const createInferenceTimePerModelGraph = (
   const inferenceTimes = data.map((d) => d.inferenceTime);
 
   const trace: Data = {
-    x: models,
-    y: inferenceTimes,
+    y: models,
+    x: inferenceTimes,
     type: "bar",
+    orientation: "h",
     marker: {
       color: "rgba(180,180,180,0.6)",
       line: {
@@ -111,14 +115,14 @@ export const createInferenceTimePerModelGraph = (
   };
 
   const layout: Partial<Layout> = {
-    title: "Inference Time per Model",
+    title: { text: "Inference Time per Model" },
     xaxis: {
-      title: "Model",
-      tickangle: -90,
+      title: { text: "Inference Time (ms)" },
     },
-    yaxis: {
-      title: "Inference Time (ms)",
+    margin: {
+      l: 250,
     },
+    autosize: true,
   };
 
   return { data: [trace], layout };
@@ -140,15 +144,16 @@ export const createInferenceTimeVsIoUGraph = (
   }));
 
   const layout: Partial<Layout> = {
-    title: "Inference Time vs IoU per Model",
+    title: { text: "Inference Time vs IoU per Model" },
     xaxis: {
-      title: "Inference Time (ms)",
+      title: { text: "Inference Time (ms)" },
     },
     yaxis: {
-      title: "IoU",
+      title: { text: "IoU" },
     },
     hovermode: "closest",
     showlegend: true,
+    autosize: true,
   };
 
   return { data: traces, layout };
