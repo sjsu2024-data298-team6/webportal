@@ -48,7 +48,7 @@ export default function Document() {
           <main className="flex-1">
             <Main />
           </main>
-          <footer className="border-t py-4">
+          <footer className="sticky bottom-0 z-50 border-t bg-white/80 py-4 backdrop-blur-sm">
             <div className="container mx-auto px-4">
               <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
                 {" < "}
