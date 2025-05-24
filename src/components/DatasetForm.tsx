@@ -146,6 +146,12 @@ export default function DatasetForm() {
         title="Dataset Information"
         description="Basic information about your dataset."
       >
+        <p className="m-4 rounded bg-red-100 p-4 text-sm text-gray-800">
+          The project is complete and no longer accepting new model
+          training/data upload requests. Please visit the inference or results
+          page to see detailed information or visit the home page for an
+          overview of the project.
+        </p>
         <TextFormEntry
           heading="Name"
           formkey="name"
