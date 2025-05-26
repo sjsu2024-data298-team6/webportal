@@ -215,36 +215,6 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      <Card className="my-6 lg:col-span-1">
-        <CardHeader>
-          <CardTitle>Conclusion</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="my-3">
-            In summary, this research presented a comprehensive approach for
-            developing an advanced lightweight, real-time obstacle detection and
-            labeling application primarily for drone flight paths, followed by
-            the growing usage of UAV for various situations and the need for
-            safety and autonomy in its application. It focused on enhancing
-            small obstacle detection by using advanced object detection models,
-            custom model development, and an end-to-end deployment pipeline.
-          </p>
-          <p className="my-3">
-            For the achievements and findings, our team was able to successfully
-            build and test various custom YOLOv8 based models. Many other custom
-            models also showed similar or better results compared to object
-            detection models such as YOLOv11, Detectron2, and RT-DETR.
-          </p>
-          <p className="my-3">
-            The implications of the project demonstrated the feasibility of
-            deploying fast and accurate obstacle detection models, which allow
-            the end point applications where the model implemented could be
-            applied to warehouse automation, delivery drones, and disaster
-            response.
-          </p>
-        </CardContent>
-      </Card>
-
       <CitationList />
     </div>
   );
