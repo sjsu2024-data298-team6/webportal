@@ -142,18 +142,23 @@ const Citation: React.FC<CitationProps> = ({ citationKey }) => {
 
 const CitationList: React.FC = () => {
   return (
-    <div className="citations-list">
-      <h3>References</h3>
-      <ol>
+    <div>
+      <div className="mb-4 text-xl font-semibold text-gray-800">
+        Key References
+      </div>
+      <ol className="space-y-3 text-sm">
         {citationsData.map((citation, index) => (
-          <li key={citation.key} className="citation-item">
-            <span className="citation-text">{citation.text}</span>
+          <li key={citation.key} className="flex flex-col gap-1">
+            <span className="leading-relaxed">
+              <span className="font-medium text-blue-600">[{index + 1}]</span>{" "}
+              {citation.text}
+            </span>
             {citation.link && (
               <a
                 href={citation.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="citation-link"
+                className="break-all text-blue-500 underline transition-colors duration-200 hover:text-blue-700"
               >
                 {citation.link}
               </a>
