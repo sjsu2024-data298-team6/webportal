@@ -82,7 +82,7 @@ export default function Home() {
           <CardTitle>Introduction</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="my-3">
+          <p className="mb-3">
             As the world begins to rely more on autonomous control, the need for
             better object detection and labeling arises. In the case of
             autonomous vehicles, there is still a large degree of false
@@ -93,7 +93,7 @@ export default function Home() {
             can improve autonomous drone vehicle operation for use in
             warehousing, delivery, and more.
           </p>
-          <p className="my-3">
+          <p className="mb-3">
             One of the primary benefits of drones is their relatively small
             footprint required to operate combined with their ability to be
             quick and nimble. It is for this reason that they must have robust
@@ -107,7 +107,7 @@ export default function Home() {
           <CardTitle>System Application</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="my-3">
+          <p className="mb-3">
             The overall system application is designed to give full control over
             the dataset definitions and model training to the end user in a
             friendly interface. The admin user can use the web interface, which
@@ -118,7 +118,7 @@ export default function Home() {
             bucket is public, the models can be accessed for fine tuned
             development via Jupyter notebooks.
           </p>
-          <p className="my-3">
+          <p className="mb-3">
             This system was primarily developed using the YOLO
             <Citation citationKey="redmon_yolo" /> framework and the VisDrone
             <Citation citationKey="zhu_et_al" /> dataset.
@@ -128,23 +128,23 @@ export default function Home() {
 
       <Card className="my-6 lg:col-span-1">
         <CardHeader>
-          <CardTitle className="text-2xl">Model Development</CardTitle>
+          <CardTitle>Model Development</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="my-3">
+          <p className="mb-3">
             The goal of our research project is to test and train various
             models, including developing custom models from scratch. Our model
             changes come from various papers in our literature review. The main
             models we will develop and test are:
           </p>
-          <ul className="ml-6 list-disc space-y-2">
+          <ul className="mb-3 ml-6 list-disc space-y-2">
             <li>YOLO DCE</li>
             <li>YOLO MHSA BiFPN</li>
             <li>YOLO BiFPN ResNet</li>
             <li>YOLO-LITE</li>
           </ul>
-          <p className="my-3">
-            <div className="font-semibold">YOLO DCE</div>
+          <div className="font-semibold">YOLO DCE</div>
+          <p className="mb-3">
             An et al{<Citation citationKey={"an_et_al"} />}found that removing
             the last two Conv and C2f streamlined the model and improved
             performance. Ye et al
@@ -154,8 +154,8 @@ export default function Home() {
             methods, we can try to improve occluded object performance and
             inference time in YOLOv8.
           </p>
-          <p className="my-3">
-            <div className="font-semibold">YOLO MHSA BiFPN</div>
+          <div className="font-semibold">YOLO MHSA BiFPN</div>
+          <p className="mb-3">
             The model incorporates a Multi-Head Self-Attention layer at the
             final backbone stage of YOLOv8 to efficiently capture global context
             while preserving spatial details, and employs a Bidirectional
@@ -163,8 +163,8 @@ export default function Home() {
             features. The original founding were proposed by Zhang et al
             {<Citation citationKey={"zhang_et_al"} />}.
           </p>
-          <p className="my-3">
-            <div className="font-semibold">YOLO BiFPN ResNet</div>
+          <div className="font-semibold">YOLO BiFPN ResNet</div>
+          <p className="mb-3">
             This model uses ResNet50 layers as its backbone since Liu et al
             {<Citation citationKey={"liu_et_al"} />}
             suggests it is ideal for feature extraction of obstacles that are
@@ -175,8 +175,8 @@ export default function Home() {
             feature fusion capability as well as bidirectional flow for better
             detection performance.
           </p>
-          <p className="my-3">
-            <div className="font-semibold">YOLO-LITE</div>
+          <div className="font-semibold">YOLO-LITE</div>
+          <p className="mb-3">
             Pedoeem and Huang{<Citation citationKey={"pedoeem_huang"} />}{" "}
             developed a model using YOLOv2 which reduced the number of layers
             and widths of those layers in the hopes of developing a model for
@@ -190,7 +190,7 @@ export default function Home() {
           <CardTitle>Conclusion</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="my-3">
+          <p className="mb-3">
             In summary, this research presented a comprehensive approach for
             developing an advanced lightweight, real-time obstacle detection and
             labeling application primarily for drone flight paths, followed by
@@ -199,13 +199,13 @@ export default function Home() {
             small obstacle detection by using advanced object detection models,
             custom model development, and an end-to-end deployment pipeline.
           </p>
-          <p className="my-3">
+          <p className="mb-3">
             For the achievements and findings, our team was able to successfully
             build and test various custom YOLOv8 based models. Many other custom
             models also showed similar or better results compared to object
             detection models such as YOLOv11, Detectron2, and RT-DETR.
           </p>
-          <p className="my-3">
+          <p className="mb-3">
             The implications of the project demonstrated the feasibility of
             deploying fast and accurate obstacle detection models, which allow
             the end point applications where the model implemented could be
